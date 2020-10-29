@@ -4,10 +4,18 @@
 \alias{train.knn}
 \title{train.knn}
 \usage{
-train.knn(formula, data, kmax = 11, ks = NULL, distance = 2,
-  kernel = "optimal", ykernel = NULL, scale = TRUE,
+train.knn(
+  formula,
+  data,
+  kmax = 11,
+  ks = NULL,
+  distance = 2,
+  kernel = "optimal",
+  ykernel = NULL,
+  scale = TRUE,
   contrasts = c(unordered = "contr.dummy", ordered = "contr.ordinal"),
-  ...)
+  ...
+)
 }
 \arguments{
 \item{formula}{A formula object.}
@@ -57,6 +65,10 @@ prediccion <- predict(modelo.knn, data.test, type = "class")
 prediccion
 confusion.matrix(data.test, prediccion)
 
+}
+\references{
+Klaus Schliep and Klaus Hechenbichler (2016). kknn: Weighted k-Nearest Neighbors.
+R package version 1.3.1. https://CRAN.R-project.org/package=kknn
 }
 \seealso{
 The internal function is from package \code{\link[kknn]{train.kknn}}.

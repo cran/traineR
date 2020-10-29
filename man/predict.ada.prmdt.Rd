@@ -4,10 +4,13 @@
 \alias{predict.ada.prmdt}
 \title{predict.ada.prmdt}
 \usage{
-\method{predict}{ada.prmdt}(object, newdata, type = "class",
-  n.iter = NULL, ...)
+\method{predict}{ada.prmdt}(object, newdata, type = "class", n.iter = NULL, ...)
 }
 \description{
 predict.ada.prmdt
+}
+\references{
+Mark Culp, Kjell Johnson and George Michailidis (2016). ada: The R Package Ada for Stochastic Boosting.
+R package version 2.0-5. https://CRAN.R-project.org/package=ada
 }
 \keyword{internal}

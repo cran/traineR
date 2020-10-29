@@ -4,8 +4,7 @@
 \alias{train.nnet}
 \title{train.nnet}
 \usage{
-train.nnet(formula, data, weights, ..., subset, na.action,
-  contrasts = NULL)
+train.nnet(formula, data, weights, ..., subset, na.action, contrasts = NULL)
 }
 \arguments{
 \item{formula}{A formula of the form class ~ x1 + x2 + ...}
@@ -50,6 +49,9 @@ prediccion <- predict(modelo.nn, data.test, type = "class")
 prediccion
 confusion.matrix(data.test, prediccion)
 
+}
+\references{
+Venables, W. N. & Ripley, B. D. (2002) Modern Applied Statistics with S. Fourth Edition. Springer, New York. ISBN 0-387-95457-0
 }
 \seealso{
 The internal function is from package \code{\link[nnet]{nnet}}.

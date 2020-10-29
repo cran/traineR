@@ -4,12 +4,27 @@
 \alias{predict.xgb.Booster.prmdt}
 \title{predict.xgb.Booster}
 \usage{
-\method{predict}{xgb.Booster.prmdt}(object, newdata, type = "class",
-  missing = NA, outputmargin = FALSE, ntreelimit = NULL,
-  predleaf = FALSE, predcontrib = FALSE, approxcontrib = FALSE,
-  predinteraction = FALSE, reshape = FALSE, ...)
+\method{predict}{xgb.Booster.prmdt}(
+  object,
+  newdata,
+  type = "class",
+  missing = NA,
+  outputmargin = FALSE,
+  ntreelimit = NULL,
+  predleaf = FALSE,
+  predcontrib = FALSE,
+  approxcontrib = FALSE,
+  predinteraction = FALSE,
+  reshape = FALSE,
+  ...
+)
 }
 \description{
 predict.xgb.Booster
+}
+\references{
+Tianqi Chen, Tong He, Michael Benesty, Vadim Khotilovich, Yuan Tang, Hyunsu Cho,
+Kailong Chen, Rory Mitchell, Ignacio Cano, Tianyi Zhou, Mu Li, Junyuan Xie, Min Lin, Yifeng Geng and Yutian Li (2020).
+xgboost: Extreme Gradient Boosting. R package version 1.2.0.1. https://CRAN.R-project.org/package=xgboost
 }
 \keyword{internal}

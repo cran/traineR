@@ -4,11 +4,22 @@
 \alias{predict.randomForest.prmdt}
 \title{predict.randomForest.prmdt}
 \usage{
-\method{predict}{randomForest.prmdt}(object, newdata, type = "class",
-  norm.votes = TRUE, predict.all = FALSE, proximity = FALSE,
-  nodes = FALSE, cutoff, ...)
+\method{predict}{randomForest.prmdt}(
+  object,
+  newdata,
+  type = "class",
+  norm.votes = TRUE,
+  predict.all = FALSE,
+  proximity = FALSE,
+  nodes = FALSE,
+  cutoff,
+  ...
+)
 }
 \description{
 predict.randomForest.prmdt
+}
+\references{
+A. Liaw and M. Wiener (2002). Classification and Regression by randomForest. R News 2(3), 18--22.
 }
 \keyword{internal}

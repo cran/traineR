@@ -4,10 +4,13 @@
 \alias{predict.rpart.prmdt}
 \title{predict.rpart.prmdt}
 \usage{
-\method{predict}{rpart.prmdt}(object, newdata, type = "class",
-  na.action = na.pass, ...)
+\method{predict}{rpart.prmdt}(object, newdata, type = "class", na.action = na.pass, ...)
 }
 \description{
 predict.rpart.prmdt
+}
+\references{
+Terry Therneau and Beth Atkinson (2019). rpart: Recursive Partitioning and Regression Trees.
+R package version 4.1-15. https://CRAN.R-project.org/package=rpart
 }
 \keyword{internal}

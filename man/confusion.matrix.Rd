@@ -35,3 +35,7 @@ prediccion
 confusion.matrix(data.test, prediccion)
 
 }
+\references{
+Hastie, T., Tibshirani, R. and Friedman, J. (2008).
+The Elements of Statistical Learning; Data Mining, Inference and Prediction. New York: Springer.
+}

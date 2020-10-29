@@ -54,13 +54,9 @@ max_col <- function(m){
 #'
 #' @keywords internal
 #'
-numeric_to_predict <- function(real, predic.var = NULL){
-  if(is.numeric(predic.var)){
-    for(nom in unique(real)) {
-      nom.num <- unique(real)
-      nom.num <- as.numeric(nom.num)[nom.num == nom]
-      predic.var[predic.var==nom.num] <- nom
-    }
+numeric_to_predict <- function(real, predic.var = NULL) {
+  if(is.numeric(predic.var)) {
+    predic.var <- factor(predic.var, labels = levels(real))
   }
   predic.var
 }

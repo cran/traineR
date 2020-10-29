@@ -4,13 +4,27 @@
 \alias{train.neuralnet}
 \title{train.neuralnet}
 \usage{
-train.neuralnet(formula, data, hidden = 1, threshold = 0.01,
-  stepmax = 1e+05, rep = 1, startweights = NULL,
-  learningrate.limit = NULL, learningrate.factor = list(minus = 0.5,
-  plus = 1.2), learningrate = NULL, lifesign = "none",
-  lifesign.step = 1000, algorithm = "rprop+", err.fct = "sse",
-  act.fct = "logistic", linear.output = TRUE, exclude = NULL,
-  constant.weights = NULL, likelihood = FALSE)
+train.neuralnet(
+  formula,
+  data,
+  hidden = 1,
+  threshold = 0.01,
+  stepmax = 1e+05,
+  rep = 1,
+  startweights = NULL,
+  learningrate.limit = NULL,
+  learningrate.factor = list(minus = 0.5, plus = 1.2),
+  learningrate = NULL,
+  lifesign = "none",
+  lifesign.step = 1000,
+  algorithm = "rprop+",
+  err.fct = "sse",
+  act.fct = "logistic",
+  linear.output = TRUE,
+  exclude = NULL,
+  constant.weights = NULL,
+  likelihood = FALSE
+)
 }
 \arguments{
 \item{formula}{a symbolic description of the model to be fitted.}
@@ -87,6 +101,10 @@ prediccion <- predict(modelo.neuralnet, data.test, type = "class")
 prediccion
 confusion.matrix(data.test, prediccion)
 
+}
+\references{
+Stefan Fritsch, Frauke Guenther and Marvin N. Wright (2019). neuralnet: Training of Neural Networks.
+R package version 1.44.2. https://CRAN.R-project.org/package=neuralnet
 }
 \seealso{
 The internal function is from package \code{\link[neuralnet]{neuralnet}}.

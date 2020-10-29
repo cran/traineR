@@ -4,8 +4,7 @@
 \alias{train.svm}
 \title{train.svm}
 \usage{
-train.svm(formula, data, ..., subset, na.action = na.omit,
-  scale = TRUE)
+train.svm(formula, data, ..., subset, na.action = na.omit, scale = TRUE)
 }
 \arguments{
 \item{formula}{a symbolic description of the model to be fit.}
@@ -50,6 +49,11 @@ prediccion <- predict(modelo.svm, data.test , type = "class")
 prediccion
 confusion.matrix(data.test, prediccion)
 
+}
+\references{
+David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2020).
+e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-4.
+https://CRAN.R-project.org/package=e1071
 }
 \seealso{
 The internal function is from package \code{\link[e1071]{svm}}.

@@ -4,10 +4,14 @@
 \alias{predict.bayes.prmdt}
 \title{predict.bayes.prmdt}
 \usage{
-\method{predict}{bayes.prmdt}(object, newdata, type = "class",
-  threshold = 0.001, eps = 0, ...)
+\method{predict}{bayes.prmdt}(object, newdata, type = "class", threshold = 0.001, eps = 0, ...)
 }
 \description{
 predict.bayes.prmdt
+}
+\references{
+David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2020).
+e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-4.
+https://CRAN.R-project.org/package=e1071
 }
 \keyword{internal}

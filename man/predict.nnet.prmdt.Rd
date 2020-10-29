@@ -9,4 +9,7 @@
 \description{
 predict.nnet.prmdt
 }
+\references{
+Venables, W. N. & Ripley, B. D. (2002) Modern Applied Statistics with S. Fourth Edition. Springer, New York. ISBN 0-387-95457-0
+}
 \keyword{internal}

@@ -4,10 +4,26 @@
 \alias{train.glm}
 \title{train.glm}
 \usage{
-train.glm(formula, data, family = binomial, weights, subset, na.action,
-  start = NULL, etastart, mustart, offset, control = list(...),
-  model = TRUE, method = "glm.fit", x = FALSE, y = TRUE,
-  singular.ok = TRUE, contrasts = NULL, ...)
+train.glm(
+  formula,
+  data,
+  family = binomial,
+  weights,
+  subset,
+  na.action,
+  start = NULL,
+  etastart,
+  mustart,
+  offset,
+  control = list(...),
+  model = TRUE,
+  method = "glm.fit",
+  x = FALSE,
+  y = TRUE,
+  singular.ok = TRUE,
+  contrasts = NULL,
+  ...
+)
 }
 \arguments{
 \item{formula}{an object of class "formula" (or one that can be coerced to that class): a symbolic description of the model to be fitted. The details of model specification are given under ‘Details’.}
@@ -70,6 +86,10 @@ prediccion <- predict(modelo.glm, data.test , type = "class")
 prediccion
 confusion.matrix(data.test, prediccion)
 
+}
+\references{
+R Core Team (2020). R: A language and environment for statistical computing.
+R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
 }
 \seealso{
 The internal function is from package \code{\link[stats]{glm}}.

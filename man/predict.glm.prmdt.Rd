@@ -4,11 +4,22 @@
 \alias{predict.glm.prmdt}
 \title{predict.glm.prmdt}
 \usage{
-\method{predict}{glm.prmdt}(object, newdata, type = "class",
-  se.fit = FALSE, dispersion = NULL, terms = NULL,
-  na.action = na.pass, ...)
+\method{predict}{glm.prmdt}(
+  object,
+  newdata,
+  type = "class",
+  se.fit = FALSE,
+  dispersion = NULL,
+  terms = NULL,
+  na.action = na.pass,
+  ...
+)
 }
 \description{
 predict.glm.prmdt
+}
+\references{
+R Core Team (2020). R: A language and environment for statistical computing.
+R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
 }
 \keyword{internal}

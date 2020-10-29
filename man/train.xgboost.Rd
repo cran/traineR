@@ -4,13 +4,33 @@
 \alias{train.xgboost}
 \title{train.xgboost}
 \usage{
-train.xgboost(formula, data, nrounds, watchlist = list(), obj = NULL,
-  feval = NULL, verbose = 1, print_every_n = 1L,
-  early_stopping_rounds = NULL, maximize = NULL, save_period = NULL,
-  save_name = "xgboost.model", xgb_model = NULL, callbacks = list(),
-  eval_metric = "mlogloss", extra_params = NULL, booster = "gbtree",
-  objective = NULL, eta = 0.3, gamma = 0, max_depth = 6,
-  min_child_weight = 1, subsample = 1, colsample_bytree = 1, ...)
+train.xgboost(
+  formula,
+  data,
+  nrounds,
+  watchlist = list(),
+  obj = NULL,
+  feval = NULL,
+  verbose = 1,
+  print_every_n = 1L,
+  early_stopping_rounds = NULL,
+  maximize = NULL,
+  save_period = NULL,
+  save_name = "xgboost.model",
+  xgb_model = NULL,
+  callbacks = list(),
+  eval_metric = "mlogloss",
+  extra_params = NULL,
+  booster = "gbtree",
+  objective = NULL,
+  eta = 0.3,
+  gamma = 0,
+  max_depth = 6,
+  min_child_weight = 1,
+  subsample = 1,
+  colsample_bytree = 1,
+  ...
+)
 }
 \arguments{
 \item{formula}{a symbolic description of the model to be fit.}
@@ -120,6 +140,11 @@ prediccion <- predict(modelo.xg, data.test, type = "class")
 prediccion
 confusion.matrix(data.test, prediccion)
 
+}
+\references{
+Tianqi Chen, Tong He, Michael Benesty, Vadim Khotilovich, Yuan Tang, Hyunsu Cho,
+Kailong Chen, Rory Mitchell, Ignacio Cano, Tianyi Zhou, Mu Li, Junyuan Xie, Min Lin, Yifeng Geng and Yutian Li (2020).
+xgboost: Extreme Gradient Boosting. R package version 1.2.0.1. https://CRAN.R-project.org/package=xgboost
 }
 \seealso{
 The internal function is from package \code{\link[xgboost]{xgb.train}}.

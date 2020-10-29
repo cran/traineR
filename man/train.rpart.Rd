@@ -4,8 +4,21 @@
 \alias{train.rpart}
 \title{train.rpart}
 \usage{
-train.rpart(formula, data, weights, subset, na.action = na.rpart, method,
-  model = TRUE, x = FALSE, y = TRUE, parms, control, cost, ...)
+train.rpart(
+  formula,
+  data,
+  weights,
+  subset,
+  na.action = na.rpart,
+  method,
+  model = TRUE,
+  x = FALSE,
+  y = TRUE,
+  parms,
+  control,
+  cost,
+  ...
+)
 }
 \arguments{
 \item{formula}{a formula, with a response but no interaction terms. If this a a data frame, that is taken as the model frame.}
@@ -65,6 +78,10 @@ prediccion <- predict(modelo.rpart, data.test, type = "class")
 prediccion
 confusion.matrix(data.test, prediccion)
 
+}
+\references{
+Terry Therneau and Beth Atkinson (2019). rpart: Recursive Partitioning and Regression Trees.
+R package version 4.1-15. https://CRAN.R-project.org/package=rpart
 }
 \seealso{
 The internal function is from package \code{\link[rpart]{rpart}}.

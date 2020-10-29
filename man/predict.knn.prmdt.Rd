@@ -9,4 +9,8 @@
 \description{
 predict.knn.prmdt
 }
+\references{
+Klaus Schliep and Klaus Hechenbichler (2016). kknn: Weighted k-Nearest Neighbors.
+R package version 1.3.1. https://CRAN.R-project.org/package=kknn
+}
 \keyword{internal}

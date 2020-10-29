@@ -4,8 +4,7 @@
 \alias{train.bayes}
 \title{train.bayes}
 \usage{
-train.bayes(formula, data, laplace = 0, ..., subset,
-  na.action = na.pass)
+train.bayes(formula, data, laplace = 0, ..., subset, na.action = na.pass)
 }
 \arguments{
 \item{formula}{A formula of the form class ~ x1 + x2 + .... Interactions are not allowed.}
@@ -46,6 +45,11 @@ prediccion <- predict(modelo.bayes, data.test, type = "class")
 prediccion
 confusion.matrix(data.test, prediccion)
 
+}
+\references{
+David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2020).
+e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-4.
+https://CRAN.R-project.org/package=e1071
 }
 \seealso{
 The internal function is from package \code{\link[e1071]{naiveBayes}}.

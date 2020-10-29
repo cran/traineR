@@ -32,6 +32,8 @@ create.model <- function(model, formula, data,  name = NULL){
 #' @seealso The internal function is from package \code{\link[ada]{ada}}.
 #'
 #' @return A object ada.prmdt with additional information to the model that allows to homogenize the results.
+#' @references Mark Culp, Kjell Johnson and George Michailidis (2016). ada: The R Package Ada for Stochastic Boosting.
+#' R package version 2.0-5. https://CRAN.R-project.org/package=ada
 #'
 #' @note the parameter information was taken from the original function \code{\link[ada]{ada}}.
 #'
@@ -95,6 +97,8 @@ train.ada <- function(formula, data, ..., subset, na.action = na.rpart){
 #' @seealso The internal function is from package \code{\link[rpart]{rpart}}.
 #'
 #' @return A object rpart.prmdt with additional information to the model that allows to homogenize the results.
+#' @references Terry Therneau and Beth Atkinson (2019). rpart: Recursive Partitioning and Regression Trees.
+#' R package version 4.1-15. https://CRAN.R-project.org/package=rpart
 #'
 #' @note the parameter information was taken from the original function \code{\link[rpart]{rpart}}.
 #'
@@ -147,6 +151,9 @@ train.rpart <- function(formula, data, weights, subset, na.action = na.rpart, me
 #' @seealso The internal function is from package \code{\link[e1071]{naiveBayes}}.
 #'
 #' @return A object bayes.prmdt with additional information to the model that allows to homogenize the results.
+#' @references David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2020).
+#' e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-4.
+#' https://CRAN.R-project.org/package=e1071
 #'
 #' @note the parameter information was taken from the original function  \code{\link[e1071]{naiveBayes}}.
 #'
@@ -197,6 +204,7 @@ train.bayes <- function(formula, data, laplace = 0, ..., subset, na.action = na.
 #' @seealso The internal function is from package \code{\link[randomForest]{randomForest}}.
 #'
 #' @return A object randomForest.prmdt with additional information to the model that allows to homogenize the results.
+#' @references A. Liaw and M. Wiener (2002). Classification and Regression by randomForest. R News 2(3), 18--22.
 #'
 #' @note the parameter information was taken from the original function  \code{\link[randomForest]{randomForest}}.
 #'
@@ -256,6 +264,8 @@ train.randomForest <- function(formula, data, ..., subset, na.action = na.fail){
 #' @seealso The internal function is from package \code{\link[kknn]{train.kknn}}.
 #'
 #' @return A object knn.prmdt with additional information to the model that allows to homogenize the results.
+#' @references Klaus Schliep and Klaus Hechenbichler (2016). kknn: Weighted k-Nearest Neighbors.
+#' R package version 1.3.1. https://CRAN.R-project.org/package=kknn
 #'
 #' @note the parameter information was taken from the original function \code{\link[kknn]{train.kknn}}.
 #'
@@ -312,6 +322,7 @@ train.knn <- function(formula, data, kmax = 11, ks = NULL, distance = 2, kernel 
 #' @seealso The internal function is from package \code{\link[nnet]{nnet}}.
 #'
 #' @return A object nnet.prmdt with additional information to the model that allows to homogenize the results.
+#' @references Venables, W. N. & Ripley, B. D. (2002) Modern Applied Statistics with S. Fourth Edition. Springer, New York. ISBN 0-387-95457-0
 #'
 #' @note the parameter information was taken from the original function \code{\link[nnet]{nnet}}.
 #'
@@ -385,6 +396,8 @@ train.nnet <- function(formula, data, weights, ..., subset, na.action, contrasts
 #' @seealso The internal function is from package \code{\link[neuralnet]{neuralnet}}.
 #'
 #' @return A object neuralnet.prmdt with additional information to the model that allows to homogenize the results.
+#' @references Stefan Fritsch, Frauke Guenther and Marvin N. Wright (2019). neuralnet: Training of Neural Networks.
+#' R package version 1.44.2. https://CRAN.R-project.org/package=neuralnet
 #'
 #' @note the parameter information was taken from the original function \code{\link[neuralnet]{neuralnet}}.
 #'
@@ -474,6 +487,9 @@ train.neuralnet <- function(formula, data, hidden = 1, threshold = 0.01, stepmax
 #' @seealso The internal function is from package \code{\link[e1071]{svm}}.
 #'
 #' @return A object svm.prmdt with additional information to the model that allows to homogenize the results.
+#' @references David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2020).
+#' e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-4.
+#' https://CRAN.R-project.org/package=e1071
 #'
 #' @note the parameter information was taken from the original function \code{\link[e1071]{svm}}.
 #'
@@ -573,6 +589,9 @@ train.svm <- function(formula, data, ..., subset, na.action = na.omit, scale = T
 #' @seealso The internal function is from package \code{\link[xgboost]{xgb.train}}.
 #'
 #' @return A object xgb.Booster.prmdt with additional information to the model that allows to homogenize the results.
+#' @references Tianqi Chen, Tong He, Michael Benesty, Vadim Khotilovich, Yuan Tang, Hyunsu Cho,
+#' Kailong Chen, Rory Mitchell, Ignacio Cano, Tianyi Zhou, Mu Li, Junyuan Xie, Min Lin, Yifeng Geng and Yutian Li (2020).
+#' xgboost: Extreme Gradient Boosting. R package version 1.2.0.1. https://CRAN.R-project.org/package=xgboost
 #'
 #' @note the parameter information was taken from the original function \code{\link[xgboost]{xgb.train}}.
 #'
@@ -686,6 +705,8 @@ train.xgboost <- function(formula, data, nrounds, watchlist = list(), obj = NULL
 #' @seealso The internal function is from package \code{\link[stats]{glm}}.
 #'
 #' @return A object glm.prmdt with additional information to the model that allows to homogenize the results.
+#' @references R Core Team (2020). R: A language and environment for statistical computing.
+#' R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
 #'
 #' @export
 #'
