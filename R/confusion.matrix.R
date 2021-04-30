@@ -7,8 +7,6 @@
 #' @param prediction a prmdt prediction object.
 #'
 #' @return A matrix with predicted and actual values.
-#' @references Hastie, T., Tibshirani, R. and Friedman, J. (2008).
-#' The Elements of Statistical Learning; Data Mining, Inference and Prediction. New York: Springer.
 #'
 #' @export
 #'

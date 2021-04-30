@@ -87,10 +87,6 @@ prediccion
 confusion.matrix(data.test, prediccion)
 
 }
-\references{
-R Core Team (2020). R: A language and environment for statistical computing.
-R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
-}
 \seealso{
 The internal function is from package \code{\link[stats]{glm}}.
 

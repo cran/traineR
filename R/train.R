@@ -18,6 +18,90 @@ create.model <- function(model, formula, data,  name = NULL){
   return(model)
 }
 
+
+#' train.qda
+#'
+#' @description Provides a wrapping function for the \code{\link[MASS]{qda}}.
+#'
+#' @param formula  A formula of the form groups ~ x1 + x2 + ... That is, the response is the grouping factor and the right hand side specifies the (non-factor) discriminators.
+#' @param data An optional data frame, list or environment from which variables specified in formula are preferentially to be taken.
+#' @param ... Arguments passed to or from other methods.
+#' @param subset An index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)
+#' @param na.action  Function to specify the action to be taken if NAs are found. The default action is for the procedure to fail.
+#'                   An alternative is na.omit, which leads to rejection of cases with missing values on any required variable.
+#'                   (NOTE: If given, this argument must be named.)
+#'
+#' @seealso The internal function is from package \code{\link[MASS]{qda}}.
+#'
+#' @return A object qda.prmdt with additional information to the model that allows to homogenize the results.
+#'
+#' @note The parameter information was taken from the original function \code{\link[MASS]{qda}}.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' len <- nrow(iris)
+#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+#' ttesting <- iris[sampl,]
+#' ttraining <- iris[-sampl,]
+#' model.qda <- train.qda(Species~.,ttraining)
+#' prediction <- predict(model.qda,ttesting)
+#' prediction
+#' general.indexes(ttesting,prediction)
+#'
+train.qda <- function(formula, data, ..., subset, na.action){
+  m <- match.call(expand.dots = T)
+  if (is.matrix(eval.parent(m$data))){
+    m$data <- as.data.frame(data)
+  }
+  m[[1L]] <- quote(MASS::qda)
+  model <- eval.parent(m)
+  create.model(model, formula, data, "qda.prmdt")
+}
+
+
+#' train.lda
+#'
+#' @description Provides a wrapping function for the \code{\link[MASS]{lda}}.
+#'
+#' @param formula  A formula of the form groups ~ x1 + x2 + ... That is, the response is the grouping factor and the right hand side specifies the (non-factor) discriminators.
+#' @param data An optional data frame, list or environment from which variables specified in formula are preferentially to be taken.
+#' @param ... Arguments passed to or from other methods.
+#' @param subset An index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)
+#' @param na.action  Function to specify the action to be taken if NAs are found. The default action is for the procedure to fail.
+#'                   An alternative is na.omit, which leads to rejection of cases with missing values on any required variable.
+#'                   (NOTE: If given, this argument must be named.)
+#'
+#' @seealso The internal function is from package \code{\link[MASS]{lda}}.
+#'
+#' @return A object lda.prmdt with additional information to the model that allows to homogenize the results.
+#'
+#' @note The parameter information was taken from the original function \code{\link[MASS]{lda}}.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' len <- nrow(iris)
+#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+#' ttesting <- iris[sampl,]
+#' ttraining <- iris[-sampl,]
+#' model.lda <- train.lda(Species~.,ttraining)
+#' prediction <- predict(model.lda,ttesting)
+#' prediction
+#' general.indexes(ttesting,prediction)
+#'
+train.lda <- function(formula, data, ..., subset, na.action){
+  m <- match.call(expand.dots = T)
+  if (is.matrix(eval.parent(m$data))){
+    m$data <- as.data.frame(data)
+  }
+  m[[1L]] <- quote(MASS::lda)
+  model <- eval.parent(m)
+  create.model(model, formula, data, "lda.prmdt")
+}
+
 #' train.ada
 #'
 #' @description Provides a wrapping function for the \code{\link[ada]{ada}}.
@@ -32,8 +116,6 @@ create.model <- function(model, formula, data,  name = NULL){
 #' @seealso The internal function is from package \code{\link[ada]{ada}}.
 #'
 #' @return A object ada.prmdt with additional information to the model that allows to homogenize the results.
-#' @references Mark Culp, Kjell Johnson and George Michailidis (2016). ada: The R Package Ada for Stochastic Boosting.
-#' R package version 2.0-5. https://CRAN.R-project.org/package=ada
 #'
 #' @note the parameter information was taken from the original function \code{\link[ada]{ada}}.
 #'
@@ -71,6 +153,61 @@ train.ada <- function(formula, data, ..., subset, na.action = na.rpart){
   create.model(model, formula, data, "ada.prmdt")
 }
 
+
+#' train.adabag
+#'
+#' @description Provides a wrapping function for the \code{\link[adabag]{boosting}}.
+#'
+#' @param formula  a symbolic description of the model to be fit.
+#' @param data an optional data frame containing the variables in the model.
+#' @param boos if TRUE (by default), a bootstrap sample of the training set is drawn using the weights for each observation on that iteration.
+#'             If FALSE, every observation is used with its weights.
+#' @param mfinal an integer, the number of iterations for which boosting is run or the number of trees to use. Defaults to mfinal=100 iterations.
+#' @param coeflearn if 'Breiman'(by default), alpha=1/2ln((1-err)/err) is used. If 'Freund' alpha=ln((1-err)/err) is used.
+#'             In both cases the AdaBoost.M1 algorithm is used and alpha is the weight updating coefficient.
+#'             On the other hand, if coeflearn is 'Zhu' the SAMME algorithm is implemented with alpha=ln((1-err)/err)+ ln(nclasses-1).
+#' @param minsplit the minimum number of observations that must exist in a node in order for a split to be attempted.
+#' @param maxdepth Set the maximum depth of any node of the final tree, with the root node counted as depth 0. Values greater than 30 rpart will give nonsense results on 32-bit machines.
+#' @param ... arguments passed to rpart.control or adabag::boosting. For stumps, use rpart.control(maxdepth=1,cp=-1,minsplit=0,xval=0). maxdepth controls the depth of
+#'            trees, and cp controls the complexity of trees.
+#'
+#' @seealso The internal function is from package \code{\link[adabag]{boosting}}.
+#'
+#' @return A object adabag.prmdt with additional information to the model that allows to homogenize the results.
+#'
+#' @note The parameter information was taken from the original function \code{\link[adabag]{boosting}} and \code{\link[rpart]{rpart.control}}.
+#'
+#' @export
+#'
+#' @examples
+#'
+#'data <- iris
+#'n <- nrow(data)
+
+#'sam <- sample(1:n,n*0.75)
+#'training <- data[sam,]
+#'testing <- data[-sam,]
+
+#'model <- train.adabag(formula = Species~.,data = training,minsplit = 2,
+#' maxdepth = 30, mfinal = 10)
+#'predict <- predict(object = model,testing,type = "class")
+#'MC <- confusion.matrix(testing,predict)
+#'general.indexes(mc = MC)
+#'
+train.adabag <- function(formula, data, boos = TRUE, mfinal = 100, coeflearn = 'Breiman', minsplit = 20, maxdepth = 30,...){
+  m <- match.call(expand.dots = T)
+  if (is.matrix(eval.parent(m$data))){
+    m$data <- as.data.frame(data)
+  }
+  m$control <- rpart::rpart.control(minsplit = minsplit, maxdepth = maxdepth,...)
+  m[[1L]] <- quote(adabag::boosting)
+  m$... <- NULL
+  m$minsplit <- NULL
+  m$maxdepth <- NULL
+  model <- eval.parent(m)
+  create.model(model, formula, data, "adabag.prmdt")
+}
+
 #' train.rpart
 #'
 #' @description Provides a wrapping function for the \code{\link[rpart]{rpart}}.
@@ -97,8 +234,6 @@ train.ada <- function(formula, data, ..., subset, na.action = na.rpart){
 #' @seealso The internal function is from package \code{\link[rpart]{rpart}}.
 #'
 #' @return A object rpart.prmdt with additional information to the model that allows to homogenize the results.
-#' @references Terry Therneau and Beth Atkinson (2019). rpart: Recursive Partitioning and Regression Trees.
-#' R package version 4.1-15. https://CRAN.R-project.org/package=rpart
 #'
 #' @note the parameter information was taken from the original function \code{\link[rpart]{rpart}}.
 #'
@@ -151,9 +286,6 @@ train.rpart <- function(formula, data, weights, subset, na.action = na.rpart, me
 #' @seealso The internal function is from package \code{\link[e1071]{naiveBayes}}.
 #'
 #' @return A object bayes.prmdt with additional information to the model that allows to homogenize the results.
-#' @references David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2020).
-#' e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-4.
-#' https://CRAN.R-project.org/package=e1071
 #'
 #' @note the parameter information was taken from the original function  \code{\link[e1071]{naiveBayes}}.
 #'
@@ -204,7 +336,6 @@ train.bayes <- function(formula, data, laplace = 0, ..., subset, na.action = na.
 #' @seealso The internal function is from package \code{\link[randomForest]{randomForest}}.
 #'
 #' @return A object randomForest.prmdt with additional information to the model that allows to homogenize the results.
-#' @references A. Liaw and M. Wiener (2002). Classification and Regression by randomForest. R News 2(3), 18--22.
 #'
 #' @note the parameter information was taken from the original function  \code{\link[randomForest]{randomForest}}.
 #'
@@ -264,8 +395,6 @@ train.randomForest <- function(formula, data, ..., subset, na.action = na.fail){
 #' @seealso The internal function is from package \code{\link[kknn]{train.kknn}}.
 #'
 #' @return A object knn.prmdt with additional information to the model that allows to homogenize the results.
-#' @references Klaus Schliep and Klaus Hechenbichler (2016). kknn: Weighted k-Nearest Neighbors.
-#' R package version 1.3.1. https://CRAN.R-project.org/package=kknn
 #'
 #' @note the parameter information was taken from the original function \code{\link[kknn]{train.kknn}}.
 #'
@@ -322,7 +451,6 @@ train.knn <- function(formula, data, kmax = 11, ks = NULL, distance = 2, kernel 
 #' @seealso The internal function is from package \code{\link[nnet]{nnet}}.
 #'
 #' @return A object nnet.prmdt with additional information to the model that allows to homogenize the results.
-#' @references Venables, W. N. & Ripley, B. D. (2002) Modern Applied Statistics with S. Fourth Edition. Springer, New York. ISBN 0-387-95457-0
 #'
 #' @note the parameter information was taken from the original function \code{\link[nnet]{nnet}}.
 #'
@@ -396,8 +524,6 @@ train.nnet <- function(formula, data, weights, ..., subset, na.action, contrasts
 #' @seealso The internal function is from package \code{\link[neuralnet]{neuralnet}}.
 #'
 #' @return A object neuralnet.prmdt with additional information to the model that allows to homogenize the results.
-#' @references Stefan Fritsch, Frauke Guenther and Marvin N. Wright (2019). neuralnet: Training of Neural Networks.
-#' R package version 1.44.2. https://CRAN.R-project.org/package=neuralnet
 #'
 #' @note the parameter information was taken from the original function \code{\link[neuralnet]{neuralnet}}.
 #'
@@ -487,9 +613,6 @@ train.neuralnet <- function(formula, data, hidden = 1, threshold = 0.01, stepmax
 #' @seealso The internal function is from package \code{\link[e1071]{svm}}.
 #'
 #' @return A object svm.prmdt with additional information to the model that allows to homogenize the results.
-#' @references David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2020).
-#' e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-4.
-#' https://CRAN.R-project.org/package=e1071
 #'
 #' @note the parameter information was taken from the original function \code{\link[e1071]{svm}}.
 #'
@@ -589,9 +712,6 @@ train.svm <- function(formula, data, ..., subset, na.action = na.omit, scale = T
 #' @seealso The internal function is from package \code{\link[xgboost]{xgb.train}}.
 #'
 #' @return A object xgb.Booster.prmdt with additional information to the model that allows to homogenize the results.
-#' @references Tianqi Chen, Tong He, Michael Benesty, Vadim Khotilovich, Yuan Tang, Hyunsu Cho,
-#' Kailong Chen, Rory Mitchell, Ignacio Cano, Tianyi Zhou, Mu Li, Junyuan Xie, Min Lin, Yifeng Geng and Yutian Li (2020).
-#' xgboost: Extreme Gradient Boosting. R package version 1.2.0.1. https://CRAN.R-project.org/package=xgboost
 #'
 #' @note the parameter information was taken from the original function \code{\link[xgboost]{xgb.train}}.
 #'
@@ -705,8 +825,6 @@ train.xgboost <- function(formula, data, nrounds, watchlist = list(), obj = NULL
 #' @seealso The internal function is from package \code{\link[stats]{glm}}.
 #'
 #' @return A object glm.prmdt with additional information to the model that allows to homogenize the results.
-#' @references R Core Team (2020). R: A language and environment for statistical computing.
-#' R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
 #'
 #' @export
 #'
@@ -745,3 +863,62 @@ train.glm <- function(formula,  data, family = binomial, weights, subset, na.act
 }
 
 
+#' train.glmnet
+#'
+#' @description Provides a wrapping function for the \code{\link[glmnet]{glmnet}}.
+#'
+#' @param formula  A formula of the form groups ~ x1 + x2 + ... That is, the response is the grouping factor and the right hand side specifies the (non-factor) discriminators.
+#' @param data An optional data frame, list or environment from which variables specified in formula are preferentially to be taken.
+#' @param standardize Logical flag for x variable standardization, prior to fitting the model sequence.
+#'                    The coefficients are always returned on the original scale. Default is standardize=TRUE.
+#'                    If variables are in the same units already, you might not wish to standardize.
+#'                    See details below for y standardization with family="gaussian".
+#' @param alpha The elasticnet mixing parameter. alpha=1 is the lasso penalty, and alpha=0 the ridge penalty.
+#' @param family Either a character string representing one of the built-in families, or else a glm() family object.
+#'               For more information, see Details section below or the documentation for response type (above).
+#' @param cv True or False. Perform cross-validation to find the best value of the penalty parameter lambda and save this value in the model.
+#'           This value could be used in predict() function.
+#' @param ... Arguments passed to or from other methods.
+#'
+#' @seealso The internal function is from package \code{\link[glmnet]{glmnet}}.
+#'
+#' @return A object glmnet.prmdt with additional information to the model that allows to homogenize the results.
+#'
+#' @note The parameter information was taken from the original function \code{\link[glmnet]{glmnet}}.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' len <- nrow(iris)
+#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+#' ttesting <- iris[sampl,]
+#' ttraining <- iris[-sampl,]
+#' model.glmnet <- train.glmnet(Species~.,ttraining)
+#' prediction <- predict(model.glmnet,ttesting)
+#' prediction
+#' general.indexes(ttesting,prediction)
+#'
+train.glmnet <- function(formula, data, standardize = TRUE, alpha = 1,family = 'multinomial', cv = TRUE,...){
+  m <- match.call(expand.dots = T)
+  if (is.matrix(eval.parent(m$data))){
+    m$data <- as.data.frame(data)
+  }
+  m[[1L]] <- quote(glmnet::glmnet)
+  x <- model.matrix(formula,data)[,-1]
+  y <- data[,as.character(formula[[2]])]
+  m$x <- x
+  m$y <- y
+  m <- get.default.parameters(m,formals(train.glmnet))
+  m$formula <- m$data <- m$cv <- m$... <- NULL
+  model <- eval.parent(m)
+  model <- create.model(model, formula, data, "glmnet.prmdt")
+  #To find the best value of the penalty parameter lambda
+  if(cv == T){
+    model$prmdt$lambda.min <- cv.glmnet(x, y, standardize = standardize, alpha = alpha,family = family)$lambda.min
+  }
+  else{
+    model$prmdt$lambda.min <- NULL
+  }
+  return(model)
+}

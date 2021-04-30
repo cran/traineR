@@ -79,10 +79,6 @@ prediccion
 confusion.matrix(data.test, prediccion)
 
 }
-\references{
-Terry Therneau and Beth Atkinson (2019). rpart: Recursive Partitioning and Regression Trees.
-R package version 4.1-15. https://CRAN.R-project.org/package=rpart
-}
 \seealso{
 The internal function is from package \code{\link[rpart]{rpart}}.
 }

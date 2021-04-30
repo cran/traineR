@@ -19,7 +19,4 @@
 \description{
 predict.randomForest.prmdt
 }
-\references{
-A. Liaw and M. Wiener (2002). Classification and Regression by randomForest. R News 2(3), 18--22.
-}
 \keyword{internal}

@@ -8,8 +8,6 @@
 #' @param mc (optional) a matrix for calculating the indices. If mc is entered as parameter newdata and prediction are not necessary.
 #'
 #' @return A list with the confusion matrix, overall accuracy, overall error and the category accuracy. The class of this list is indexes.prmdt
-#' @references Hastie, T., Tibshirani, R. and Friedman, J. (2008).
-#' The Elements of Statistical Learning; Data Mining, Inference and Prediction. New York: Springer.
 #'
 #' @export
 #'

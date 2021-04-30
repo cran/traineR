@@ -50,9 +50,6 @@ prediccion
 confusion.matrix(data.test, prediccion)
 
 }
-\references{
-Venables, W. N. & Ripley, B. D. (2002) Modern Applied Statistics with S. Fourth Edition. Springer, New York. ISBN 0-387-95457-0
-}
 \seealso{
 The internal function is from package \code{\link[nnet]{nnet}}.
 }

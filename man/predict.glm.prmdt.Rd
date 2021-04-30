@@ -18,8 +18,4 @@
 \description{
 predict.glm.prmdt
 }
-\references{
-R Core Team (2020). R: A language and environment for statistical computing.
-R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
-}
 \keyword{internal}

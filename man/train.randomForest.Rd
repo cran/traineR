@@ -44,9 +44,6 @@ prediccion
 confusion.matrix(data.test, prediccion)
 
 }
-\references{
-A. Liaw and M. Wiener (2002). Classification and Regression by randomForest. R News 2(3), 18--22.
-}
 \seealso{
 The internal function is from package \code{\link[randomForest]{randomForest}}.
 }

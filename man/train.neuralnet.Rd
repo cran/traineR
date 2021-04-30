@@ -102,10 +102,6 @@ prediccion
 confusion.matrix(data.test, prediccion)
 
 }
-\references{
-Stefan Fritsch, Frauke Guenther and Marvin N. Wright (2019). neuralnet: Training of Neural Networks.
-R package version 1.44.2. https://CRAN.R-project.org/package=neuralnet
-}
 \seealso{
 The internal function is from package \code{\link[neuralnet]{neuralnet}}.
 }

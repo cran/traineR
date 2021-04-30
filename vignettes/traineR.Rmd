@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 library(traineR)
 ```
 
-The `traineR` package seeks to unify the different ways of creating predictive models and their different predictive formats. It includes methods such as K-Nearest Neighbors, Decision Trees, ADA Boosting, Extreme Gradient Boosting, Random Forest, Neural Networks, Deep Learning, Support Vector Machines, Bayesian and Logical Regression.
+The `traineR` package seeks to unify the different ways of creating predictive models and their different predictive formats. It includes methods such as K-Nearest Neighbors, Decision Trees, ADA Boosting, Extreme Gradient Boosting, Random Forest, Neural Networks, Deep Learning, Support Vector Machines, Bayesian, Linear Discriminant Analysis, Quadratic Discriminant Analysis and Logical Regression.
 
 The main idea of the package is that all predictions can be execute using a standard syntax, also that all predictive methods can be used in the same way by default, for example, that all packages are use classification in their default invocation and all methods use a formula to determine the predictor variables (independent variables) and the response variable.
 
@@ -166,6 +166,68 @@ prp(model, extra = 104, branch.type = 2,
 **Modeling:**
 ```{r}
 model <- train.bayes(Species~., data.train)
+model
+```
+
+**Prediction as probability:**
+```{r}
+prediction <- predict(model, data.test , type = "prob")
+prediction
+```
+
+**Prediction as classification:**
+```{r}
+prediction <- predict(model, data.test , type = "class")
+prediction
+```
+
+**Confusion Matrix:**
+```{r}
+mc <- confusion.matrix(data.test, prediction)
+mc
+```
+
+**Some Rates:**
+```{r}
+general.indexes(mc = mc)
+```
+
+### Linear Discriminant Analysis
+
+**Modeling:**
+```{r}
+model <- train.lda(Species~., data.train)
+model
+```
+
+**Prediction as probability:**
+```{r}
+prediction <- predict(model, data.test , type = "prob")
+prediction
+```
+
+**Prediction as classification:**
+```{r}
+prediction <- predict(model, data.test , type = "class")
+prediction
+```
+
+**Confusion Matrix:**
+```{r}
+mc <- confusion.matrix(data.test, prediction)
+mc
+```
+
+**Some Rates:**
+```{r}
+general.indexes(mc = mc)
+```
+
+### Quadratic Discriminant Analysis
+
+**Modeling:**
+```{r}
+model <- train.qda(Species~., data.train)
 model
 ```
 

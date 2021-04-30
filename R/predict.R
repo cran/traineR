@@ -9,11 +9,50 @@ create.prediction  <- function(model, prediction){
   return(prediction)
 }
 
+
+#' predict.qda.prmdt
+#'
+#' @keywords internal
+#'
+predict.qda.prmdt <- function(object, newdata, type = "class", ...){
+  if(type == "class"){
+    ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), ...)$class
+  }
+  else if(type == "prob"){
+    ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), ...)$posterior
+  }
+  else{
+    stop("invalid type for prediction")
+  }
+
+  ans <- type_correction(object, ans, type == "class")
+  return(create.prediction(object, ans))
+}
+
+
+#' predict.lda.prmdt
+#'
+#' @keywords internal
+#'
+predict.lda.prmdt <- function(object, newdata, type = "class", ...){
+  if(type == "class"){
+    ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), ...)$class
+  }
+  else if(type == "prob"){
+    ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), ...)$posterior
+  }
+  else{
+    stop("invalid type for prediction")
+  }
+
+  ans <- type_correction(object, ans, type == "class")
+  return(create.prediction(object, ans))
+}
+
+
 #' predict.ada.prmdt
 #'
 #' @keywords internal
-#' @references Mark Culp, Kjell Johnson and George Michailidis (2016). ada: The R Package Ada for Stochastic Boosting.
-#' R package version 2.0-5. https://CRAN.R-project.org/package=ada
 #'
 predict.ada.prmdt <- function(object, newdata, type = "class", n.iter = NULL, ...){
   type <- ifelse(type == "class", "vector", type)
@@ -26,12 +65,29 @@ predict.ada.prmdt <- function(object, newdata, type = "class", n.iter = NULL, ..
   return(create.prediction(object, ans))
 }
 
+#' predict.adabag.prmdt
+#'
+#' @keywords internal
+#'
+predict.adabag.prmdt <- function(object, newdata, type = "class",...){
+  if(type == "class"){
+    ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), ...)$class
+    ans <- type_correction(object, ans, TRUE)
+  }
+  else if(type == "prob"){
+    ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), ...)$prob
+    colnames(ans) <- object$prmdt$levels
+  }
+  else{
+    stop("invalid type for prediction")
+  }
+  return(create.prediction(object, ans))
+}
+
+
 #' predict.bayes.prmdt
 #'
 #' @keywords internal
-#' @references David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2020).
-#' e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-4.
-#' https://CRAN.R-project.org/package=e1071
 #'
 predict.bayes.prmdt <- function(object, newdata, type = "class", threshold = 0.001, eps = 0, ...){
   type <- ifelse(type == "prob", "raw", type)
@@ -43,8 +99,6 @@ predict.bayes.prmdt <- function(object, newdata, type = "class", threshold = 0.0
 #' predict.knn.prmdt
 #'
 #' @keywords internal
-#' @references Klaus Schliep and Klaus Hechenbichler (2016). kknn: Weighted k-Nearest Neighbors.
-#' R package version 1.3.1. https://CRAN.R-project.org/package=kknn
 #'
 predict.knn.prmdt <- function(object, newdata, type = "class", ...){
   type <- ifelse(type == "class", "raw", type)
@@ -56,7 +110,6 @@ predict.knn.prmdt <- function(object, newdata, type = "class", ...){
 #' predict.nnet.prmdt
 #'
 #' @keywords internal
-#' @references Venables, W. N. & Ripley, B. D. (2002) Modern Applied Statistics with S. Fourth Edition. Springer, New York. ISBN 0-387-95457-0
 #'
 predict.nnet.prmdt <- function(object, newdata, type = "class", ...){
   type <- ifelse(type == "prob", "raw", type)
@@ -77,8 +130,6 @@ predict.nnet.prmdt <- function(object, newdata, type = "class", ...){
 #' predict.neuralnet.prmdt
 #'
 #' @keywords internal
-#' @references Stefan Fritsch, Frauke Guenther and Marvin N. Wright (2019). neuralnet: Training of Neural Networks.
-#' R package version 1.44.2. https://CRAN.R-project.org/package=neuralnet
 #'
 predict.neuralnet.prmdt <- function(object, newdata, type = "class", ...){
   selector <- unlist(lapply(newdata, is.ordered))
@@ -115,7 +166,6 @@ predict.neuralnet.prmdt <- function(object, newdata, type = "class", ...){
 #' predict.randomForest.prmdt
 #'
 #' @keywords internal
-#' @references A. Liaw and M. Wiener (2002). Classification and Regression by randomForest. R News 2(3), 18--22.
 #'
 predict.randomForest.prmdt <- function(object, newdata, type = "class", norm.votes = TRUE, predict.all = FALSE, proximity = FALSE, nodes = FALSE, cutoff, ...){
   type <- ifelse(type == "class", "response", type)
@@ -132,8 +182,6 @@ predict.randomForest.prmdt <- function(object, newdata, type = "class", norm.vot
 #' predict.rpart.prmdt
 #'
 #' @keywords internal
-#' @references Terry Therneau and Beth Atkinson (2019). rpart: Recursive Partitioning and Regression Trees.
-#' R package version 4.1-15. https://CRAN.R-project.org/package=rpart
 #'
 predict.rpart.prmdt <- function(object, newdata, type = "class", na.action = na.pass, ...){
   ans <- predict(original_model(object), newdata, type, na.action, ...)
@@ -144,9 +192,6 @@ predict.rpart.prmdt <- function(object, newdata, type = "class", na.action = na.
 #' predict.svm.prmdt
 #'
 #' @keywords internal
-#' @references David Meyer, Evgenia Dimitriadou, Kurt Hornik, Andreas Weingessel and Friedrich Leisch (2020).
-#' e1071: Misc Functions of the Department of Statistics, Probability Theory Group (Formerly: E1071), TU Wien. R package version 1.7-4.
-#' https://CRAN.R-project.org/package=e1071
 #'
 predict.svm.prmdt <- function(object, newdata, type = "class", decision.values = FALSE, ..., na.action = na.omit){
   ans <- predict(original_model(object), newdata, decision.values, probability = type == "prob", ..., na.action = na.action)
@@ -162,9 +207,6 @@ predict.svm.prmdt <- function(object, newdata, type = "class", decision.values =
 #' predict.xgb.Booster
 #'
 #' @keywords internal
-#' @references Tianqi Chen, Tong He, Michael Benesty, Vadim Khotilovich, Yuan Tang, Hyunsu Cho,
-#' Kailong Chen, Rory Mitchell, Ignacio Cano, Tianyi Zhou, Mu Li, Junyuan Xie, Min Lin, Yifeng Geng and Yutian Li (2020).
-#' xgboost: Extreme Gradient Boosting. R package version 1.2.0.1. https://CRAN.R-project.org/package=xgboost
 #'
 predict.xgb.Booster.prmdt <- function(object, newdata, type = "class", missing = NA, outputmargin = FALSE, ntreelimit = NULL, predleaf = FALSE, predcontrib = FALSE,
                                 approxcontrib = FALSE, predinteraction = FALSE, reshape = FALSE, ...){
@@ -219,8 +261,6 @@ predict.xgb.Booster.prmdt <- function(object, newdata, type = "class", missing =
 #' predict.glm.prmdt
 #'
 #' @keywords internal
-#' @references R Core Team (2020). R: A language and environment for statistical computing.
-#' R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
 #'
 predict.glm.prmdt <- function(object, newdata, type = "class", se.fit = FALSE, dispersion = NULL, terms = NULL, na.action = na.pass, ...){
   ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), "response",  se.fit = se.fit, dispersion = dispersion, terms = terms, na.action = na.action, ... = ...)
@@ -232,6 +272,29 @@ predict.glm.prmdt <- function(object, newdata, type = "class", se.fit = FALSE, d
     colnames(ans) <- levels.class
   }else{
     ans <- ifelse(ans > 0.5, levels.class[2], levels.class[1])
+    ans <- type_correction(object, ans, type == "class")
+  }
+  return(create.prediction(object, ans))
+}
+
+
+#' predict.glmnet.prmdt
+#'
+#' @keywords internal
+#'
+predict.glmnet.prmdt <- function(object, newdata, type = "class", s = NULL,...){
+  testing <- model.matrix(formula(paste(object$prmdt$var.pred,"~",object$prmdt$vars[[2]])), newdata)[, -1]
+  if(is.null(s) && !is.null(object$prmdt$lambda.min)){
+    s <- object$prmdt$lambda.min
+  }
+  if(type == "prob"){
+    ans <- predict(original_model(object), testing, s = s, type = "response", ...)
+  }
+  else{
+    ans <- predict(original_model(object), testing, s = s, type = type, ...)
+  }
+
+  if(!(is.null(object$prmdt$lambda.min) && is.null(s))){
     ans <- type_correction(object, ans, type == "class")
   }
   return(create.prediction(object, ans))

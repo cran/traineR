@@ -9,8 +9,4 @@
 \description{
 predict.rpart.prmdt
 }
-\references{
-Terry Therneau and Beth Atkinson (2019). rpart: Recursive Partitioning and Regression Trees.
-R package version 4.1-15. https://CRAN.R-project.org/package=rpart
-}
 \keyword{internal}
