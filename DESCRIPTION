@@ -1,7 +1,7 @@
 Package: traineR
 Type: Package
 Title: Predictive Models Homologator
-Version: 1.6.1
+Version: 1.6.2
 Authors@R: c(
     person("Oldemar", "Rodriguez R.", email = "oldemar.rodriguez@ucr.ac.cr", role = c("aut","cre")),
     person("Andres", "Navarro D.", role = c("ctb","prg")),
@@ -22,10 +22,10 @@ URL: https://www.promidat.com
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2021-04-29 17:24:35 UTC; promidat05
+Packaged: 2021-05-31 14:51:54 UTC; promidat05
 Author: Oldemar Rodriguez R. [aut, cre],
   Andres Navarro D. [ctb, prg],
   Ariel Arroyo S. [ctb, prg]
 Maintainer: Oldemar Rodriguez R. <oldemar.rodriguez@ucr.ac.cr>
 Repository: CRAN
-Date/Publication: 2021-04-30 09:50:02 UTC
+Date/Publication: 2021-06-03 08:10:02 UTC

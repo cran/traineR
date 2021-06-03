@@ -11,7 +11,7 @@ get.default.parameters <- function(mcall, myFormals) {
   return(mcall)
 }
 
-#' get_test_less_predict
+#' select_on_class
 #'
 #' @keywords internal
 #'
@@ -66,12 +66,18 @@ max_col <- function(m){
 #'
 #' @keywords internal
 #'
-numeric_to_predict <- function(real, predic.var = NULL) {
+numeric_to_predict <- function(real, predic.var = NULL, niveles = NULL) {
   if(is.numeric(predic.var)) {
-    numCategories <-  length(levels(real))
-    #We must specify the possible values that the factor type object can take
-    #Then we specify the labels that must have the same size as the levels
-    predic.var <- factor(predic.var, levels = 1:numCategories,labels = levels(real))
+    if(is.null(niveles)){
+      numCategories <-  length(levels(real))
+      #We must specify the possible values that the factor type object can take
+      #Then we specify the labels that must have the same size as the levels
+      predic.var <- factor(predic.var, levels = 1:numCategories,labels = levels(real))
+    }
+    else{
+      numCategories <-  length(niveles)
+      predic.var <- factor(predic.var, levels = 1:numCategories,labels = niveles)
+    }
   }
   predic.var
 }
@@ -106,7 +112,10 @@ original_model <- function(x){
 #' @keywords internal
 #'
 get_test_less_predict <- function(data, var.pred){
-  data[,-which(colnames(data) == var.pred)]
+  if(var.pred %in% colnames(data)){
+    return(data[,-which(colnames(data) == var.pred)])
+  }
+  return(data)
 }
 
 

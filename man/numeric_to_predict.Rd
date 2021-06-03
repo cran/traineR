@@ -4,7 +4,7 @@
 \alias{numeric_to_predict}
 \title{numeric_to_predict}
 \usage{
-numeric_to_predict(real, predic.var = NULL)
+numeric_to_predict(real, predic.var = NULL, niveles = NULL)
 }
 \description{
 numeric_to_predict

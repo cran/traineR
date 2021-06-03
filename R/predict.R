@@ -140,12 +140,21 @@ predict.neuralnet.prmdt <- function(object, newdata, type = "class", ...){
 
   var.predict <- object$prmdt$var.pred
   selector <- which(colnames(newdata) == var.predict)
-  suppressWarnings(newdata <- cbind(dummy.data.frame(newdata[, -selector, drop = FALSE], drop = FALSE,
-                                                     dummy.classes = c("factor","character")), newdata[selector]))
 
-  selector <- which(colnames(newdata) == var.predict)
+  if(length(selector) != 0){
+    suppressWarnings(newdata <- dummy.data.frame(newdata[, -selector, drop = FALSE], drop = FALSE,
+                                                       dummy.classes = c("factor","character")))
+  }
+  else{
+    suppressWarnings(newdata <- dummy.data.frame(newdata, drop = FALSE,
+                                                       dummy.classes = c("factor","character")))
+  }
 
-  ans <- neuralnet::compute(original_model(object), newdata[, -selector])
+
+  #selector <- which(colnames(newdata) == var.predict)
+
+  #ans <- neuralnet::compute(original_model(object), newdata[, -selector])
+  ans <- neuralnet::compute(original_model(object), newdata)
 
   if(type == "all"){
     return(create.prediction(object, ans))
@@ -156,7 +165,8 @@ predict.neuralnet.prmdt <- function(object, newdata, type = "class", ...){
 
   if(type == "class"){
     ans <- max_col(ans)
-    ans <- numeric_to_predict(newdata[, selector], ans)
+    #ans <- numeric_to_predict(newdata[, selector], ans)
+    ans <- numeric_to_predict(predic.var = ans, niveles = object$prmdt$levels)
     ans <- type_correction(object, ans, type == "class")
   }
 
@@ -216,18 +226,26 @@ predict.xgb.Booster.prmdt <- function(object, newdata, type = "class", missing =
   selector <- which(colnames(newdata) == var.pred)
 
   if(length(.colnames) == 1 && .colnames == "."){
-    .colnames <- colnames(newdata[,-selector, drop = FALSE])
+    if(length(selector) != 0){
+      .colnames <- colnames(newdata[,-selector, drop = FALSE])
+    }
+    else{
+      .colnames <- colnames(newdata)
+    }
   }
 
-  test_aux <- newdata %>% select(c(.colnames,var.pred))  %>% select_on_class(c("numeric","integer", "factor"))
+  #test_aux <- newdata %>% select(c(.colnames,var.pred))  %>% select_on_class(c("numeric","integer", "factor"))
+  test_aux <- newdata %>% select(c(.colnames))  %>% select_on_class(c("numeric","integer", "factor"))
   test_aux[] <- lapply(test_aux, as.numeric)
 
-  if(min(test_aux[,var.pred]) != 0){
-    test_aux[,var.pred]  <- test_aux[,var.pred]  - 1
-  }
 
-  selector <- which(colnames(test_aux) == var.pred)
-  test_aux  <- xgb.DMatrix(data = data.matrix(test_aux[,-selector]), label = data.matrix(test_aux[,selector]))
+  # if(min(test_aux[,var.pred]) != 0){
+  #   test_aux[,var.pred]  <- test_aux[,var.pred]  - 1
+  # }
+
+  #selector <- which(colnames(test_aux) == var.pred)
+  #test_aux  <- xgb.DMatrix(data = data.matrix(test_aux[,-selector]), label = data.matrix(test_aux[,selector]))
+  test_aux  <- xgb.DMatrix(data = data.matrix(test_aux))
 
   ans <- predict(original_model(object), test_aux, missing, outputmargin, ntreelimit, predleaf, predcontrib, approxcontrib, predinteraction, reshape, ...)
 
@@ -239,7 +257,8 @@ predict.xgb.Booster.prmdt <- function(object, newdata, type = "class", missing =
     }else{
       ans <- ifelse(ans > 0.5, 2, 1)
     }
-    ans <- numeric_to_predict(newdata[,var.pred], ans)
+    #ans <- numeric_to_predict(newdata[,var.pred], ans)
+    ans <- numeric_to_predict(predic.var = ans, niveles = object$prmdt$levels)
   }
 
   if(type == "prob"){
@@ -283,7 +302,9 @@ predict.glm.prmdt <- function(object, newdata, type = "class", se.fit = FALSE, d
 #' @keywords internal
 #'
 predict.glmnet.prmdt <- function(object, newdata, type = "class", s = NULL,...){
-  testing <- model.matrix(formula(paste(object$prmdt$var.pred,"~",object$prmdt$vars[[2]])), newdata)[, -1]
+  newdata <- get_test_less_predict(newdata, object$prmdt$var.pred)
+  #Importante usar model.matrix, también Convierte a dummy
+  testing <- model.matrix( ~., newdata)[,-1]
   if(is.null(s) && !is.null(object$prmdt$lambda.min)){
     s <- object$prmdt$lambda.min
   }

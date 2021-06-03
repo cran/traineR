@@ -905,6 +905,7 @@ train.glmnet <- function(formula, data, standardize = TRUE, alpha = 1,family = '
     m$data <- as.data.frame(data)
   }
   m[[1L]] <- quote(glmnet::glmnet)
+  #Automaticamente convierte los factores en dummy excepto la variable a predecir. En la prediccion también se debe convertir en dummy
   x <- model.matrix(formula,data)[,-1]
   y <- data[,as.character(formula[[2]])]
   m$x <- x

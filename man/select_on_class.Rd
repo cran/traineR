@@ -2,11 +2,11 @@
 % Please edit documentation in R/Utilities.R
 \name{select_on_class}
 \alias{select_on_class}
-\title{get_test_less_predict}
+\title{select_on_class}
 \usage{
 select_on_class(.data, clases = "numeric")
 }
 \description{
-get_test_less_predict
+select_on_class
 }
 \keyword{internal}
