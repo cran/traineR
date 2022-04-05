@@ -531,8 +531,8 @@ train.nnet <- function(formula, data, weights, ..., subset, na.action, contrasts
 #'
 #' @examples
 #'
+#' \dontrun{
 #' data("iris")
-#'
 #' n <- seq_len(nrow(iris))
 #' .sample <- sample(n, length(n) * 0.75)
 #' data.train <- iris[.sample,]
@@ -546,6 +546,7 @@ train.nnet <- function(formula, data, weights, ..., subset, na.action, contrasts
 #' prediccion <- predict(modelo.neuralnet, data.test, type = "class")
 #' prediccion
 #' confusion.matrix(data.test, prediccion)
+#' }
 #'
 train.neuralnet <- function(formula, data, hidden = 1, threshold = 0.01, stepmax = 1e+05, rep = 1, startweights = NULL, learningrate.limit = NULL,
                             learningrate.factor = list(minus = 0.5, plus = 1.2), learningrate = NULL, lifesign = "none", lifesign.step = 1000,
@@ -643,7 +644,7 @@ train.svm <- function(formula, data, ..., subset, na.action = na.omit, scale = T
     m[[.name]] <- my.list[[.name]]
   }
   m$... <- NULL
-  m$probability <- is.null(m$probability) || m$probability
+  m$probability <- ifelse(is.null(m$probability), TRUE, m$probability)
   model <- eval(m, envir = parent.frame())
   create.model(model, formula, data, "svm.prmdt")
 }

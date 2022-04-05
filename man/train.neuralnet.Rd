@@ -85,8 +85,8 @@ the parameter information was taken from the original function \code{\link[neura
 }
 \examples{
 
+\dontrun{
 data("iris")
-
 n <- seq_len(nrow(iris))
 .sample <- sample(n, length(n) * 0.75)
 data.train <- iris[.sample,]
@@ -100,6 +100,7 @@ prob
 prediccion <- predict(modelo.neuralnet, data.test, type = "class")
 prediccion
 confusion.matrix(data.test, prediccion)
+}
 
 }
 \seealso{
