@@ -6,7 +6,20 @@
 \usage{
 \method{predict}{ada.prmdt}(object, newdata, type = "class", n.iter = NULL, ...)
 }
-\description{
-predict.ada.prmdt
+\arguments{
+\item{object}{a \code{\link[ada]{ada}} model object for which prediction is desired.}
+
+\item{newdata}{an optional data frame in which to look for variables with which to predict.}
+
+\item{type}{type of prediction 'prob' or 'class' (default).}
+
+\item{n.iter}{number of iterations to consider for the prediction. By default this is iter from the ada call (n.iter< iter).}
+
+\item{...}{additional arguments affecting the predictions produced.}
 }
-\keyword{internal}
+\value{
+a vector or matrix of predictions for ada model.
+}
+\description{
+Return prediction for a \code{\link[ada]{ada}} model.
+}

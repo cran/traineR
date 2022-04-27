@@ -11,7 +11,9 @@
 
 \item{...}{optional arguments to print o format method}
 }
+\value{
+a print of the results of a prediction model.
+}
 \description{
 Printing prmdt index object
 }
-\keyword{internal}

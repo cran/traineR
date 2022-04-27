@@ -11,7 +11,9 @@
 
 \item{...}{optional arguments to print o format method}
 }
+\value{
+a plot of a model.
+}
 \description{
 Plotting prmdt models
 }
-\keyword{internal}

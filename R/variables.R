@@ -1,6 +1,7 @@
 #' gg_color
 #'
 #' @keywords internal
+#' @importFrom grDevices hcl
 #'
 gg_color <- function (n) {
   hues <- seq(15, 375, length = n + 1)
@@ -24,6 +25,8 @@ gg_color <- function (n) {
 #' @return A ggplot object.
 #'
 #' @note With this function we can identify if the data is balanced or not, according to the variable to be predicted.
+#'
+#' @import ggplot2
 #'
 #' @export
 #'
@@ -71,6 +74,8 @@ prediction.variable.balance <- function(data, predict.variable, ylab = "Number o
 #' @return A ggplot object.
 #'
 #' @note With this function we can analyze the predictive power of a numerical variable.
+#'
+#' @import ggplot2
 #'
 #' @export
 #'
@@ -128,6 +133,9 @@ numerical.predictive.power <- function(data, predict.variable, variable.to.compa
 #'
 #' @note With this function we can analyze the predictive power of a categorical variable.
 #'
+#' @import ggplot2
+#' @import dplyr
+#'
 #' @export
 #'
 #' @examples
@@ -155,19 +163,19 @@ categorical.predictive.power <- function(data, predict.variable, variable.to.com
       col <- rep(col,length(unique(data[,predict.variable])))
     }
 
-    suppressWarnings(datos2 <- data %>%
-      dplyr::group_by_(variable.to.compare, predict.variable) %>%
+    suppressWarnings(datos2 <- data |>
+      dplyr::group_by_(variable.to.compare, predict.variable) |>
       dplyr::summarise(count = n()))
 
     if(variable.to.compare != predict.variable){
-      suppressWarnings(datos2 <-   datos2 %>% dplyr::group_by_(variable.to.compare))
+      suppressWarnings(datos2 <-   datos2 |> dplyr::group_by_(variable.to.compare))
     }
-    datos2 <- datos2 %>% dplyr::mutate(prop = round(count/sum(count),4))
+    datos2 <- datos2 |> dplyr::mutate(prop = round(count/sum(count),4))
 
     ggplot(data = datos2, mapping = aes_string(x = variable.to.compare, y = "prop", fill = predict.variable)) +
       geom_col(position = "fill") +
-      geom_text(aes(label = glue("{percent(prop)} ({count})")), position = position_stack(vjust = .5), color = "white") +
-      scale_y_continuous(labels = percent) +
+      geom_text(aes(label = paste0(round(prop * 100, 2), "% (", count, ")")), position = position_stack(vjust = .5), color = "white") +
+      scale_y_continuous(labels = function(x) return(paste0(x * 100, "%"))) +
       labs(y =  xlab, x  = ylab, title = main) +
       scale_fill_manual(values = col, name = predict.variable) +
       theme(legend.position = "bottom")+
@@ -192,17 +200,20 @@ categorical.predictive.power <- function(data, predict.variable, variable.to.com
 #'
 #' @note With this function we can identify how important the variables are for the generation of a predictive model.
 #'
+#' @import ggplot2
+#' @importFrom stats reorder
+#'
 #' @export
 #'
 #' @examples
 #'
 #'data <- iris
 #'n <- nrow(data)
-
+#'
 #'sam <- sample(1:n,n*0.75)
 #'training <- data[sam,]
 #'testing <- data[-sam,]
-
+#'
 #'model <- train.adabag(formula = Species~.,data = training,minsplit = 2,
 #'  maxdepth = 30, mfinal = 10)
 #'boosting.importance.plot(model)

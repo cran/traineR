@@ -24,9 +24,11 @@ With this function we can identify how important the variables are for the gener
 
 data <- iris
 n <- nrow(data)
+
 sam <- sample(1:n,n*0.75)
 training <- data[sam,]
 testing <- data[-sam,]
+
 model <- train.adabag(formula = Species~.,data = training,minsplit = 2,
  maxdepth = 30, mfinal = 10)
 boosting.importance.plot(model)

@@ -6,7 +6,18 @@
 \usage{
 \method{predict}{adabag.prmdt}(object, newdata, type = "class", ...)
 }
-\description{
-predict.adabag.prmdt
+\arguments{
+\item{object}{a \code{\link[adabag]{boosting}} model object for which prediction is desired.}
+
+\item{newdata}{an optional data frame in which to look for variables with which to predict.}
+
+\item{type}{type of prediction 'prob' or 'class' (default).}
+
+\item{...}{additional arguments affecting the predictions produced.}
 }
-\keyword{internal}
+\value{
+a vector or matrix of predictions adabag model.
+}
+\description{
+Return prediction for a \code{\link[adabag]{boosting}} model.
+}

@@ -13,7 +13,22 @@
   na.action = na.omit
 )
 }
-\description{
-predict.svm.prmdt
+\arguments{
+\item{object}{a \code{\link[e1071]{svm}} model object for which prediction is desired.}
+
+\item{newdata}{an optional data frame in which to look for variables with which to predict.}
+
+\item{type}{type of prediction 'prob' or 'class' (default).}
+
+\item{decision.values}{Logical controlling whether the decision values of all binary classifiers computed in multiclass classification shall be computed and returned.}
+
+\item{...}{additional arguments affecting the predictions produced.}
+
+\item{na.action}{A function to specify the action to be taken if ‘NA’s are found. The default action is na.omit, which leads to rejection of cases with missing values on any required variable. An alternative is na.fail, which causes an error if NA cases are found. (NOTE: If given, this argument must be named.)}
 }
-\keyword{internal}
+\value{
+a vector or matrix of predictionsfor svm model.
+}
+\description{
+Return prediction for a \code{\link[e1071]{svm}} model.
+}

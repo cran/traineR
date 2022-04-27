@@ -6,7 +6,22 @@
 \usage{
 \method{predict}{bayes.prmdt}(object, newdata, type = "class", threshold = 0.001, eps = 0, ...)
 }
-\description{
-predict.bayes.prmdt
+\arguments{
+\item{object}{a \code{\link[e1071]{naiveBayes}} model object for which prediction is desired.}
+
+\item{newdata}{an optional data frame in which to look for variables with which to predict.}
+
+\item{type}{type of prediction 'prob' or 'class' (default).}
+
+\item{threshold}{Value replacing cells with 0 probabilities.}
+
+\item{eps}{double for specifying an epsilon-range to apply laplace smoothing (to replace zero or close-zero probabilities by theshold).}
+
+\item{...}{additional arguments affecting the predictions produced.}
 }
-\keyword{internal}
+\value{
+a vector or matrix of predictions for bayes model.
+}
+\description{
+Return prediction for a \code{\link[e1071]{naiveBayes}} model.
+}

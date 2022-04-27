@@ -11,6 +11,8 @@
 #'
 #' @return A plot object.
 #'
+#' @importFrom graphics grid segments
+#'
 #' @export
 #'
 #' @examples

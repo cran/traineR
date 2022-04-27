@@ -18,7 +18,6 @@ create.model <- function(model, formula, data,  name = NULL){
   return(model)
 }
 
-
 #' train.qda
 #'
 #' @description Provides a wrapping function for the \code{\link[MASS]{qda}}.
@@ -112,6 +111,8 @@ train.lda <- function(formula, data, ..., subset, na.action){
 #'            trees, and cp controls the complexity of trees. The priors should also be fixed through the parms argument as discussed in the second reference.
 #' @param subset an optional vector specifying a subset of observations to be used in the fitting process.
 #' @param na.action a function that indicates how to process ‘NA’ values. Default=na.rpart.
+#'
+#' @importFrom ada ada
 #'
 #' @seealso The internal function is from package \code{\link[ada]{ada}}.
 #'
@@ -231,6 +232,8 @@ train.adabag <- function(formula, data, boos = TRUE, mfinal = 100, coeflearn = '
 #' @param cost a vector of non-negative costs, one for each variable in the model. Defaults to one for all variables. These are scalings to be applied when considering splits, so the improvement on splitting on a variable is divided by its cost in deciding which split to choose.
 #' @param ... arguments to \code{\link[rpart]{rpart.control}} may also be specified in the call to rpart. They are checked against the list of valid arguments.
 #'
+#' @importFrom rpart rpart na.rpart
+#'
 #' @seealso The internal function is from package \code{\link[rpart]{rpart}}.
 #'
 #' @return A object rpart.prmdt with additional information to the model that allows to homogenize the results.
@@ -283,6 +286,8 @@ train.rpart <- function(formula, data, weights, subset, na.action = na.rpart, me
 #' @param subset For data given in a data frame, an index vector specifying the cases to be used in the training sample. (NOTE: If given, this argument must be named.)
 #' @param na.action A function to specify the action to be taken if NAs are found. The default action is not to count them for the computation of the probability factors. An alternative is na.omit, which leads to rejection of cases with missing values on any required variable. (NOTE: If given, this argument must be named.)
 #'
+#' @importFrom e1071 naiveBayes
+#'
 #' @seealso The internal function is from package \code{\link[e1071]{naiveBayes}}.
 #'
 #' @return A object bayes.prmdt with additional information to the model that allows to homogenize the results.
@@ -332,6 +337,9 @@ train.bayes <- function(formula, data, laplace = 0, ..., subset, na.action = na.
 #' @param ... optional parameters to be passed to the low level function randomForest.default.
 #' @param subset an index vector indicating which rows should be used. (NOTE: If given, this argument must be named.)
 #' @param na.action A function to specify the action to be taken if NAs are found. (NOTE: If given, this argument must be named.)
+#'
+#' @importFrom randomForest randomForest
+#' @importFrom stats na.fail
 #'
 #' @seealso The internal function is from package \code{\link[randomForest]{randomForest}}.
 #'
@@ -392,6 +400,8 @@ train.randomForest <- function(formula, data, ..., subset, na.action = na.fail){
 #' @param contrasts A vector containing the 'unordered' and 'ordered' contrasts to use.
 #' @param ... Further arguments passed to or from other methods.
 #'
+#' @importFrom kknn train.kknn contr.dummy contr.ordinal
+#'
 #' @seealso The internal function is from package \code{\link[kknn]{train.kknn}}.
 #'
 #' @return A object knn.prmdt with additional information to the model that allows to homogenize the results.
@@ -447,6 +457,8 @@ train.knn <- function(formula, data, kmax = 11, ks = NULL, distance = 2, kernel 
 #'                  procedure to fail. An alternative is na.omit, which leads to rejection of cases with missing
 #'                  values on any required variable. (NOTE: If given, this argument must be named.)
 #' @param contrasts a list of contrasts to be used for some or all of the factors appearing as variables in the model formula.
+#'
+#' @importFrom nnet nnet
 #'
 #' @seealso The internal function is from package \code{\link[nnet]{nnet}}.
 #'
@@ -521,6 +533,11 @@ train.nnet <- function(formula, data, weights, ..., subset, na.action, contrasts
 #' @param likelihood logical. If the error function is equal to the negative log-likelihood function, the
 #'                   information criteria AIC and BIC will be calculated. Furthermore the usage of confidence.interval is meaningfull.
 #'
+#' @importFrom neuralnet neuralnet
+#' @importFrom dummies dummy.data.frame
+#' @importFrom stats update as.formula
+#' @importFrom utils head
+#'
 #' @seealso The internal function is from package \code{\link[neuralnet]{neuralnet}}.
 #'
 #' @return A object neuralnet.prmdt with additional information to the model that allows to homogenize the results.
@@ -528,25 +545,6 @@ train.nnet <- function(formula, data, weights, ..., subset, na.action, contrasts
 #' @note the parameter information was taken from the original function \code{\link[neuralnet]{neuralnet}}.
 #'
 #' @export
-#'
-#' @examples
-#'
-#' \dontrun{
-#' data("iris")
-#' n <- seq_len(nrow(iris))
-#' .sample <- sample(n, length(n) * 0.75)
-#' data.train <- iris[.sample,]
-#' data.test <- iris[-.sample,]
-#'
-#' modelo.neuralnet <- train.neuralnet(Species~., data.train,hidden = c(10, 14, 13),
-#'                                     linear.output = FALSE, threshold = 0.01, stepmax = 1e+06)
-#' modelo.neuralnet
-#' prob <- predict(modelo.neuralnet, data.test, type = "prob")
-#' prob
-#' prediccion <- predict(modelo.neuralnet, data.test, type = "class")
-#' prediccion
-#' confusion.matrix(data.test, prediccion)
-#' }
 #'
 train.neuralnet <- function(formula, data, hidden = 1, threshold = 0.01, stepmax = 1e+05, rep = 1, startweights = NULL, learningrate.limit = NULL,
                             learningrate.factor = list(minus = 0.5, plus = 1.2), learningrate = NULL, lifesign = "none", lifesign.step = 1000,
@@ -610,6 +608,8 @@ train.neuralnet <- function(formula, data, hidden = 1, threshold = 0.01, stepmax
 #' @param scale A logical vector indicating the variables to be scaled. If scale is of length 1, the value is
 #'              recycled as many times as needed. Per default, data are scaled internally (both x and y variables) to zero mean and unit variance.
 #'              The center and scale values are returned and used for later predictions.
+#'
+#' @importFrom e1071 svm
 #'
 #' @seealso The internal function is from package \code{\link[e1071]{svm}}.
 #'
@@ -710,6 +710,9 @@ train.svm <- function(formula, data, ..., subset, na.action = na.omit, scale = T
 #' @param colsample_bytree colsample_bytree subsample ratio of columns when constructing each tree. Default: 1
 #' @param ... other parameters to pass to params.
 #'
+#' @importFrom xgboost xgboost xgb.DMatrix xgb.train
+#' @import dplyr
+#'
 #' @seealso The internal function is from package \code{\link[xgboost]{xgb.train}}.
 #'
 #' @return A object xgb.Booster.prmdt with additional information to the model that allows to homogenize the results.
@@ -751,7 +754,7 @@ train.xgboost <- function(formula, data, nrounds, watchlist = list(), obj = NULL
     .colnames <- colnames(data[,-selector, drop = FALSE])
   }
 
-  train_aux <- data %>% select(c(.colnames,var.predict)) %>% select_on_class(c("numeric","integer", "factor"))
+  train_aux <- data |> select(c(.colnames,var.predict)) |> select_on_class(c("numeric","integer", "factor"))
 
   train_aux[] <- lapply(train_aux, as.numeric)
 
@@ -794,8 +797,6 @@ train.xgboost <- function(formula, data, nrounds, watchlist = list(), obj = NULL
 
 }
 
-
-
 #' train.glm
 #'
 #' @description Provides a wrapping function for the \code{\link[stats]{glm}}
@@ -820,6 +821,8 @@ train.xgboost <- function(formula, data, nrounds, watchlist = list(), obj = NULL
 #' @param contrasts an optional list. See the contrasts.arg of model.matrix.default.
 #' @param ... For glm: arguments to be used to form the default control argument if it is not supplied directly.
 #'            For weights: further arguments passed to or from other methods.
+#'
+#' @importFrom stats glm binomial
 #'
 #' @seealso The internal function is from package \code{\link[stats]{glm}}.
 #'
@@ -886,6 +889,8 @@ train.glm <- function(formula,  data, family = binomial, weights, subset, na.act
 #' @return A object glmnet.prmdt with additional information to the model that allows to homogenize the results.
 #'
 #' @note The parameter information was taken from the original function \code{\link[glmnet]{glmnet}}.
+#'
+#' @importFrom stats model.matrix
 #'
 #' @export
 #'

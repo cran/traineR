@@ -118,13 +118,15 @@ get_test_less_predict <- function(data, var.pred){
   return(data)
 }
 
-
 #' Printing prmdt models
 #'
 #' @param x A prmdt models
 #' @param ... optional arguments to print o format method
 #'
-#' @keywords internal
+#' @return a print information of a model.
+#'
+#' @export print.prmdt
+#' @export
 #'
 print.prmdt <- function(x, ...){
   print(original_model(x), ...)
@@ -135,7 +137,10 @@ print.prmdt <- function(x, ...){
 #' @param x A prmdt prediction object
 #' @param ... optional arguments to print o format method
 #'
-#' @keywords internal
+#' @return a print prediction of a model.
+#'
+#' @export print.prediction.prmdt
+#' @export
 #'
 print.prediction.prmdt <- function(x, ...){
   print(x$prediction, ...)
@@ -146,7 +151,12 @@ print.prediction.prmdt <- function(x, ...){
 #' @param x A prmdt index object
 #' @param ... optional arguments to print o format method
 #'
-#' @keywords internal
+#' @importFrom utils capture.output
+#'
+#' @return a print of the results of a prediction model.
+#'
+#' @export print.indexes.prmdt
+#' @export
 #'
 print.indexes.prmdt <- function(x, ...){
   out <- c("\nConfusion Matrix:",capture.output(x$confusion.matrix))
@@ -159,13 +169,15 @@ print.indexes.prmdt <- function(x, ...){
   cat(out)
 }
 
-
 #' Plotting prmdt models
 #'
 #' @param x A prmdt models
 #' @param ... optional arguments to print o format method
 #'
-#' @keywords internal
+#' @return a plot of a model.
+#'
+#' @export plot.prmdt
+#' @export
 #'
 plot.prmdt <- function(x, ...){
   x <- original_model(x)
