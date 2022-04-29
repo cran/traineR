@@ -534,7 +534,6 @@ train.nnet <- function(formula, data, weights, ..., subset, na.action, contrasts
 #'                   information criteria AIC and BIC will be calculated. Furthermore the usage of confidence.interval is meaningfull.
 #'
 #' @importFrom neuralnet neuralnet
-#' @importFrom dummies dummy.data.frame
 #' @importFrom stats update as.formula
 #' @importFrom utils head
 #'

@@ -22,8 +22,8 @@
 #' \tabular{ll}{
 #' Package: \tab traineR\cr
 #' Type: \tab Package\cr
-#' Version: \tab 1.7.3\cr
-#' Date: \tab 2022-04-26\cr
+#' Version: \tab 1.7.4\cr
+#' Date: \tab 2022-04-29\cr
 #' License: \tab GPL (>=2)\cr
 #' }
 #' @keywords package
@@ -31,5 +31,5 @@
 
 NULL
 utils::globalVariables(c(
-  "prop"
+  "prop", "dummy"
 ))
