@@ -1,4 +1,3 @@
-
 #' create.model
 #'
 #' @keywords internal
@@ -8,12 +7,17 @@ create.model <- function(model, formula, data,  name = NULL){
   model$prmdt$var.pred <- .var
   model$prmdt$vars     <- formula[-2]
   model$prmdt$type     <- class(data[, .var])
-  model$prmdt$levels   <- levels(data[,.var])
+  if(is.numeric(data[[.var]])) {
+    tipo <- "prmdt.regression"
+  } else {
+    model$prmdt$levels <- levels(data[,.var])
+    tipo <- "prmdt.clasification"
+  }
 
   if(is.null(name)){
-    class(model) <- c("prmdt", class(model))
+    class(model) <- c("prmdt", class(model), tipo)
   }else{
-    class(model) <- c("prmdt", name, class(model))
+    class(model) <- c("prmdt", name, class(model), tipo)
   }
   return(model)
 }
@@ -45,9 +49,9 @@ create.model <- function(model, formula, data,  name = NULL){
 #' ttesting <- iris[sampl,]
 #' ttraining <- iris[-sampl,]
 #' model.qda <- train.qda(Species~.,ttraining)
-#' prediction <- predict(model.qda,ttesting)
+#' model.qda
+#' prediction <- predict(model.qda, ttesting)
 #' prediction
-#' general.indexes(ttesting,prediction)
 #'
 train.qda <- function(formula, data, ..., subset, na.action){
   m <- match.call(expand.dots = T)
@@ -58,7 +62,6 @@ train.qda <- function(formula, data, ..., subset, na.action){
   model <- eval.parent(m)
   create.model(model, formula, data, "qda.prmdt")
 }
-
 
 #' train.lda
 #'
@@ -87,9 +90,9 @@ train.qda <- function(formula, data, ..., subset, na.action){
 #' ttesting <- iris[sampl,]
 #' ttraining <- iris[-sampl,]
 #' model.lda <- train.lda(Species~.,ttraining)
+#' model.lda
 #' prediction <- predict(model.lda,ttesting)
 #' prediction
-#' general.indexes(ttesting,prediction)
 #'
 train.lda <- function(formula, data, ..., subset, na.action){
   m <- match.call(expand.dots = T)
@@ -137,7 +140,6 @@ train.lda <- function(formula, data, ..., subset, na.action){
 #' prob
 #' prediccion <- predict(modelo.ada, data.test , type = "class")
 #' prediccion
-#' confusion.matrix(data.test, prediccion)
 #'
 train.ada <- function(formula, data, ..., subset, na.action = na.rpart){
   m <- match.call(expand.dots = FALSE)
@@ -153,7 +155,6 @@ train.ada <- function(formula, data, ..., subset, na.action = na.rpart){
   model <- eval.parent(m)
   create.model(model, formula, data, "ada.prmdt")
 }
-
 
 #' train.adabag
 #'
@@ -182,18 +183,18 @@ train.ada <- function(formula, data, ..., subset, na.action = na.rpart){
 #'
 #' @examples
 #'
-#'data <- iris
-#'n <- nrow(data)
-
-#'sam <- sample(1:n,n*0.75)
-#'training <- data[sam,]
-#'testing <- data[-sam,]
-
-#'model <- train.adabag(formula = Species~.,data = training,minsplit = 2,
-#' maxdepth = 30, mfinal = 10)
-#'predict <- predict(object = model,testing,type = "class")
-#'MC <- confusion.matrix(testing,predict)
-#'general.indexes(mc = MC)
+#' data <- iris
+#' n <- nrow(data)
+#'
+#' sam <- sample(1:n,n*0.75)
+#' training <- data[sam,]
+#' testing <- data[-sam,]
+#'
+#' model <- train.adabag(formula = Species~.,data = training,minsplit = 2,
+#'                       maxdepth = 30, mfinal = 10)
+#' model
+#' predict <- predict(object = model,testing,type = "class")
+#' predict
 #'
 train.adabag <- function(formula, data, boos = TRUE, mfinal = 100, coeflearn = 'Breiman', minsplit = 20, maxdepth = 30,...){
   m <- match.call(expand.dots = T)
@@ -207,6 +208,85 @@ train.adabag <- function(formula, data, boos = TRUE, mfinal = 100, coeflearn = '
   m$maxdepth <- NULL
   model <- eval.parent(m)
   create.model(model, formula, data, "adabag.prmdt")
+}
+
+#' train.gbm
+#'
+#' @description Provides a wrapping function for the \code{\link[gbm]{gbm}}.
+#'
+#' @param formula  a symbolic description of the model to be fit.
+#' @param data an optional data frame containing the variables in the model.
+#' @param distribution Either a character string specifying the name of the distribution to use or a list with a component name specifying the distribution and any additional parameters needed.
+#' @param weights an optional vector of weights to be used in the fitting process. Must be positive but do not need to be normalized.
+#' @param var.monotone an optional vector, the same length as the number of predictors, indicating which variables have a monotone increasing (+1), decreasing (-1), or arbitrary (0) relationship with the outcome.
+#' @param n.trees Integer specifying the total number of trees to fit. This is equivalent to the number of iterations and the number of basis functions in the additive expansion. Default is 100.
+#' @param interaction.depth Integer specifying the maximum depth of each tree (i.e., the highest level of variable interactions allowed). A value of 1 implies an additive model, a value of 2 implies a model with up to 2-way interactions, etc. Default is 1.
+#' @param n.minobsinnode Integer specifying the minimum number of observations in the terminal nodes of the trees. Note that this is the actual number of observations, not the total weight.
+#' @param shrinkage a shrinkage parameter applied to each tree in the expansion. Also known as the learning rate or step-size reduction; 0.001 to 0.1 usually work, but a smaller learning rate typically requires more trees. Default is 0.1.
+#' @param bag.fraction the fraction of the training set observations randomly selected to propose the next tree in the expansion. This introduces randomnesses into the model fit.
+#' @param train.fraction The first train.fraction * nrows(data) observations are used to fit the gbm and the remainder are used for computing out-of-sample estimates of the loss function.
+#' @param cv.folds Number of cross-validation folds to perform. If cv.folds>1 then gbm, in addition to the usual fit, will perform a cross-validation, calculate an estimate of generalization error returned in cv.error.
+#' @param keep.data a logical variable indicating whether to keep the data and an index of the data stored with the object. Keeping the data and index makes subsequent calls to gbm.more faster at the cost of storing an extra copy of the dataset.
+#' @param verbose Logical indicating whether or not to print out progress and performance indicators (TRUE). If this option is left unspecified for gbm.more, then it uses verbose from object. Default is FALSE.
+#' @param class.stratify.cv Logical indicating whether or not the cross-validation should be stratified by class.
+#' @param n.cores The number of CPU cores to use. The cross-validation loop will attempt to send different CV folds off to different cores. If n.cores is not specified by the user, it is guessed using the detectCores function in the parallel package.
+#'
+#' @importFrom gbm gbm
+#'
+#' @seealso The internal function is from package \code{\link[gbm]{gbm}}.
+#'
+#' @return A object gbm.prmdt with additional information to the model that allows to homogenize the results.
+#'
+#' @note The parameter information was taken from the original function \code{\link[gbm]{gbm}}.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' # Classification
+#' data <- iris
+#' n <- nrow(data)
+#'
+#' sam <- sample(1:n, n*0.75)
+#' training <- data[sam,]
+#' testing <- data[-sam,]
+#'
+#' model <- train.gbm(formula = Species ~ ., data = training)
+#' model
+#' predict <- predict(object = model, testing)
+#' predict
+#'
+#' # Regression
+#' len <- nrow(swiss)
+#' sampl <- sample(x = 1:len,size = len*0.10,replace = FALSE)
+#' ttesting <- swiss[sampl,]
+#' ttraining <- swiss[-sampl,]
+#' model.gbm <- train.gbm(Infant.Mortality~., ttraining, distribution = "gaussian")
+#' prediction <- predict(model.gbm, ttesting)
+#' prediction
+#'
+train.gbm <- function(
+  formula, data, distribution = "bernoulli", weights, var.monotone = NULL,
+  n.trees = 100, interaction.depth = 1, n.minobsinnode = 10, shrinkage = 0.001,
+  bag.fraction = 0.5, train.fraction = 1.0, cv.folds = 0, keep.data = TRUE,
+  verbose = F, class.stratify.cv = NULL, n.cores = NULL) {
+
+  m <- match.call(expand.dots = FALSE)
+  var.predict <- as.character(formula[2])
+  if(length(levels(data[[var.predict]])) > 1) {
+    n <- length(levels(data[[var.predict]])) - 1
+    aux_data <- data
+    levels(aux_data[[var.predict]]) <- 0:n
+    m$data <- aux_data
+  }
+  m[[1L]] <- quote(gbm::gbm)
+  my.list <- as.list(m$...)
+  for(.name in names(my.list)) {
+    m[[.name]] <- my.list[[.name]]
+  }
+  m$... <- NULL
+  model <- eval.parent(m)
+  create.model(model, formula, data, "gbm.prmdt")
 }
 
 #' train.rpart
@@ -244,6 +324,7 @@ train.adabag <- function(formula, data, boos = TRUE, mfinal = 100, coeflearn = '
 #'
 #' @examples
 #'
+#' # Classification
 #' data("iris")
 #'
 #' n <- seq_len(nrow(iris))
@@ -257,7 +338,15 @@ train.adabag <- function(formula, data, boos = TRUE, mfinal = 100, coeflearn = '
 #' prob
 #' prediccion <- predict(modelo.rpart, data.test, type = "class")
 #' prediccion
-#' confusion.matrix(data.test, prediccion)
+#'
+#' # Regression
+#' len <- nrow(swiss)
+#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+#' ttesting <- swiss[sampl,]
+#' ttraining <- swiss[-sampl,]
+#' model.rpart <- train.rpart(Infant.Mortality~.,ttraining)
+#' prediction <- predict(model.rpart,ttesting)
+#' prediction
 #'
 train.rpart <- function(formula, data, weights, subset, na.action = na.rpart, method, model = TRUE, x = FALSE, y = TRUE, parms, control, cost, ...){
   m <- match.call(expand.dots = FALSE)
@@ -298,6 +387,7 @@ train.rpart <- function(formula, data, weights, subset, na.action = na.rpart, me
 #'
 #' @examples
 #'
+#' # Classification
 #' data("iris")
 #'
 #' n <- seq_len(nrow(iris))
@@ -311,7 +401,15 @@ train.rpart <- function(formula, data, weights, subset, na.action = na.rpart, me
 #' prob
 #' prediccion <- predict(modelo.bayes, data.test, type = "class")
 #' prediccion
-#' confusion.matrix(data.test, prediccion)
+#'
+#' # Regression
+#' len <- nrow(swiss)
+#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+#' ttesting <- swiss[sampl,]
+#' ttraining <- swiss[-sampl,]
+#' model.bayes <- train.bayes(Infant.Mortality~.,ttraining)
+#' prediction <- predict(model.bayes, ttesting)
+#' prediction
 #'
 train.bayes <- function(formula, data, laplace = 0, ..., subset, na.action = na.pass){
   m <- match.call(expand.dots = FALSE)
@@ -351,6 +449,7 @@ train.bayes <- function(formula, data, laplace = 0, ..., subset, na.action = na.
 #'
 #' @examples
 #'
+#' # Classification
 #' data("iris")
 #'
 #' n <- seq_len(nrow(iris))
@@ -364,7 +463,15 @@ train.bayes <- function(formula, data, laplace = 0, ..., subset, na.action = na.
 #' prob
 #' prediccion <- predict(modelo.rf, data.test, type = "class")
 #' prediccion
-#' confusion.matrix(data.test, prediccion)
+#'
+#' # Regression
+#' len <- nrow(swiss)
+#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+#' ttesting <- swiss[sampl,]
+#' ttraining <- swiss[-sampl,]
+#' model.rf <- train.randomForest(Infant.Mortality~.,ttraining)
+#' prediction <- predict(model.rf, ttesting)
+#' prediction
 #'
 train.randomForest <- function(formula, data, ..., subset, na.action = na.fail){
   m <- match.call(expand.dots = FALSE)
@@ -400,7 +507,7 @@ train.randomForest <- function(formula, data, ..., subset, na.action = na.fail){
 #' @param contrasts A vector containing the 'unordered' and 'ordered' contrasts to use.
 #' @param ... Further arguments passed to or from other methods.
 #'
-#' @importFrom kknn train.kknn contr.dummy contr.ordinal
+#' @importFrom kknn train.kknn
 #'
 #' @seealso The internal function is from package \code{\link[kknn]{train.kknn}}.
 #'
@@ -412,6 +519,7 @@ train.randomForest <- function(formula, data, ..., subset, na.action = na.fail){
 #'
 #' @examples
 #'
+#' # Classification
 #' data("iris")
 #'
 #' n <- seq_len(nrow(iris))
@@ -425,10 +533,18 @@ train.randomForest <- function(formula, data, ..., subset, na.action = na.fail){
 #' prob
 #' prediccion <- predict(modelo.knn, data.test, type = "class")
 #' prediccion
-#' confusion.matrix(data.test, prediccion)
+#'
+#' # Regression
+#' len <- nrow(swiss)
+#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+#' ttesting <- swiss[sampl,]
+#' ttraining <- swiss[-sampl,]
+#' model.knn <- train.knn(Infant.Mortality~.,ttraining)
+#' prediction <- predict(model.knn, ttesting)
+#' prediction
 #'
 train.knn <- function(formula, data, kmax = 11, ks = NULL, distance = 2, kernel = "optimal", ykernel = NULL,
-                      scale = TRUE, contrasts = c('unordered' = "contr.dummy", ordered = "contr.ordinal"), ...){
+                      scale = TRUE, contrasts = c(unordered = "contr.dummy", ordered = "contr.ordinal"), ...){
 
   m <- match.call(expand.dots = FALSE)
   if (is.matrix(eval.parent(m$data))){
@@ -470,6 +586,7 @@ train.knn <- function(formula, data, kmax = 11, ks = NULL, distance = 2, kernel 
 #'
 #' @examples
 #'
+#' # Classification
 #' data("iris")
 #'
 #' n <- seq_len(nrow(iris))
@@ -483,10 +600,20 @@ train.knn <- function(formula, data, kmax = 11, ks = NULL, distance = 2, kernel 
 #' prob
 #' prediccion <- predict(modelo.nn, data.test, type = "class")
 #' prediccion
-#' confusion.matrix(data.test, prediccion)
+#'
+#' # Regression
+#' len <- nrow(swiss)
+#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+#' ttesting <- swiss[sampl,]
+#' ttraining <- swiss[-sampl,]
+#' model.knn <- train.nnet(Infant.Mortality~.,ttraining, size = 20)
+#' prediction <- predict(model.knn, ttesting)
+#' prediction
 #'
 train.nnet <- function(formula, data, weights, ..., subset, na.action, contrasts = NULL){
   m <- match.call(expand.dots = FALSE)
+  var.predict <- as.character(formula[2])
+
   if (is.matrix(eval.parent(m$data))){
     m$data <- as.data.frame(data)
   }
@@ -494,6 +621,9 @@ train.nnet <- function(formula, data, weights, ..., subset, na.action, contrasts
   my.list <- as.list(m$...)
   for(.name in names(my.list)) {
     m[[.name]] <- my.list[[.name]]
+  }
+  if(is.numeric(data[[var.predict]])) {
+    m$linout <- TRUE
   }
   m$... <- NULL
   model <- eval.parent(m)
@@ -587,10 +717,12 @@ train.neuralnet <- function(formula, data, hidden = 1, threshold = 0.01, stepmax
   m[[1L]] <- quote(neuralnet::neuralnet)
   my.list <- as.list(m$...)
   m$formula <- formula.aux
+  if(is.numeric(data[[var.predict]])) {
+    m$linear.output <- TRUE
+  }
   model <- eval(m, envir = environment())
 
   create.model(model, formula, aux_data, "neuralnet.prmdt")
-
 }
 
 #' train.svm
@@ -620,6 +752,7 @@ train.neuralnet <- function(formula, data, hidden = 1, threshold = 0.01, stepmax
 #'
 #' @examples
 #'
+#' # Classification
 #' data("iris")
 #'
 #' n <- seq_len(nrow(iris))
@@ -633,7 +766,15 @@ train.neuralnet <- function(formula, data, hidden = 1, threshold = 0.01, stepmax
 #' prob
 #' prediccion <- predict(modelo.svm, data.test , type = "class")
 #' prediccion
-#' confusion.matrix(data.test, prediccion)
+#'
+#' # Regression
+#' len <- nrow(swiss)
+#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+#' ttesting <- swiss[sampl,]
+#' ttraining <- swiss[-sampl,]
+#' model.svm <- train.svm(Infant.Mortality~.,ttraining)
+#' prediction <- predict(model.svm, ttesting)
+#' prediction
 #'
 train.svm <- function(formula, data, ..., subset, na.action = na.omit, scale = TRUE){
   m <- match.call(expand.dots = FALSE)
@@ -709,6 +850,7 @@ train.svm <- function(formula, data, ..., subset, na.action = na.omit, scale = T
 #' @param colsample_bytree colsample_bytree subsample ratio of columns when constructing each tree. Default: 1
 #' @param ... other parameters to pass to params.
 #'
+#' @importFrom stats model.frame
 #' @importFrom xgboost xgboost xgb.DMatrix xgb.train
 #' @import dplyr
 #'
@@ -722,6 +864,7 @@ train.svm <- function(formula, data, ..., subset, na.action = na.omit, scale = T
 #'
 #' @examples
 #'
+#' # Classification
 #' data("iris")
 #'
 #' n <- seq_len(nrow(iris))
@@ -735,7 +878,16 @@ train.svm <- function(formula, data, ..., subset, na.action = na.omit, scale = T
 #' prob
 #' prediccion <- predict(modelo.xg, data.test, type = "class")
 #' prediccion
-#' confusion.matrix(data.test, prediccion)
+#'
+#' # Regression
+#' len <- nrow(swiss)
+#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+#' ttesting <- swiss[sampl,]
+#' ttraining <- swiss[-sampl,]
+#' model.xgb <- train.xgboost(Infant.Mortality~.,ttraining, nrounds = 79, maximize = FALSE)
+#' prediction <- predict(model.xgb, ttesting)
+#' prediction
+#'
 #'
 train.xgboost <- function(formula, data, nrounds, watchlist = list(), obj = NULL, feval = NULL,
                           verbose = 1, print_every_n = 1L, early_stopping_rounds = NULL, maximize = NULL,
@@ -773,7 +925,8 @@ train.xgboost <- function(formula, data, nrounds, watchlist = list(), obj = NULL
 
   if(is.null(extra_params)){
     if(is.null(objective)){
-      objective <- ifelse(num.class == 2, "binary:logistic", "multi:softprob")
+      objective <- ifelse(num.class == 0, "reg:squarederror",
+                          ifelse(num.class == 2, "binary:logistic", "multi:softprob"))
     }
     params <- list(booster = booster, objective = objective, eta = eta, gamma = gamma, max_depth = max_depth,
                    min_child_weight = min_child_weight, subsample = subsample, colsample_bytree = colsample_bytree)
@@ -793,7 +946,6 @@ train.xgboost <- function(formula, data, nrounds, watchlist = list(), obj = NULL
   }
 
   create.model(model, formula, data, "xgb.Booster.prmdt")
-
 }
 
 #' train.glm
@@ -833,6 +985,7 @@ train.xgboost <- function(formula, data, nrounds, watchlist = list(), obj = NULL
 #'
 #' @examples
 #'
+#' # Classification
 #' data("Puromycin")
 #'
 #' n <- seq_len(nrow(Puromycin))
@@ -846,7 +999,16 @@ train.xgboost <- function(formula, data, nrounds, watchlist = list(), obj = NULL
 #' prob
 #' prediccion <- predict(modelo.glm, data.test , type = "class")
 #' prediccion
-#' confusion.matrix(data.test, prediccion)
+#'
+#' # Regression
+#' len <- nrow(swiss)
+#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+#' ttesting <- swiss[sampl,]
+#' ttraining <- swiss[-sampl,]
+#' model.glm <- train.glm(Infant.Mortality~.,ttraining, family = "gaussian")
+#' prediction <- predict(model.glm, ttesting)
+#' prediction
+#'
 #'
 train.glm <- function(formula,  data, family = binomial, weights, subset, na.action, start = NULL, etastart, mustart, offset, control = list(...),
                       model = TRUE, method = "glm.fit", x = FALSE, y = TRUE, singular.ok = TRUE, contrasts = NULL, ...){
@@ -864,7 +1026,6 @@ train.glm <- function(formula,  data, family = binomial, weights, subset, na.act
   model <- eval.parent(m)
   create.model(model, formula, data, "glm.prmdt")
 }
-
 
 #' train.glmnet
 #'
@@ -895,6 +1056,7 @@ train.glm <- function(formula,  data, family = binomial, weights, subset, na.act
 #'
 #' @examples
 #'
+#' # Classification
 #' len <- nrow(iris)
 #' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
 #' ttesting <- iris[sampl,]
@@ -902,20 +1064,28 @@ train.glm <- function(formula,  data, family = binomial, weights, subset, na.act
 #' model.glmnet <- train.glmnet(Species~.,ttraining)
 #' prediction <- predict(model.glmnet,ttesting)
 #' prediction
-#' general.indexes(ttesting,prediction)
 #'
-train.glmnet <- function(formula, data, standardize = TRUE, alpha = 1,family = 'multinomial', cv = TRUE,...){
+#' # Regression
+#' len <- nrow(swiss)
+#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+#' ttesting <- swiss[sampl,]
+#' ttraining <- swiss[-sampl,]
+#' model.glmnet <- train.glmnet(Infant.Mortality~.,ttraining, family = "gaussian")
+#' prediction <- predict(model.glmnet, ttesting)
+#' prediction
+#'
+train.glmnet <- function(formula, data, standardize = TRUE, alpha = 1, family = 'multinomial', cv = TRUE, ...){
   m <- match.call(expand.dots = T)
   if (is.matrix(eval.parent(m$data))){
     m$data <- as.data.frame(data)
   }
   m[[1L]] <- quote(glmnet::glmnet)
   #Automaticamente convierte los factores en dummy excepto la variable a predecir. En la prediccion también se debe convertir en dummy
-  x <- model.matrix(formula,data)[,-1]
+  x <- model.matrix(formula, data)[,-1]
   y <- data[,as.character(formula[[2]])]
   m$x <- x
   m$y <- y
-  m <- get.default.parameters(m,formals(train.glmnet))
+  m <- get.default.parameters(m, formals(train.glmnet))
   m$formula <- m$data <- m$cv <- m$... <- NULL
   model <- eval.parent(m)
   model <- create.model(model, formula, data, "glmnet.prmdt")

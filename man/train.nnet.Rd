@@ -34,6 +34,7 @@ the parameter information was taken from the original function \code{\link[nnet]
 }
 \examples{
 
+# Classification
 data("iris")
 
 n <- seq_len(nrow(iris))
@@ -47,7 +48,15 @@ prob <- predict(modelo.nn, data.test, type = "prob")
 prob
 prediccion <- predict(modelo.nn, data.test, type = "class")
 prediccion
-confusion.matrix(data.test, prediccion)
+
+# Regression
+len <- nrow(swiss)
+sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+ttesting <- swiss[sampl,]
+ttraining <- swiss[-sampl,]
+model.knn <- train.nnet(Infant.Mortality~.,ttraining, size = 20)
+prediction <- predict(model.knn, ttesting)
+prediction
 
 }
 \seealso{

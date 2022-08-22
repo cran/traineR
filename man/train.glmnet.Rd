@@ -45,6 +45,7 @@ The parameter information was taken from the original function \code{\link[glmne
 }
 \examples{
 
+# Classification
 len <- nrow(iris)
 sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
 ttesting <- iris[sampl,]
@@ -52,7 +53,15 @@ ttraining <- iris[-sampl,]
 model.glmnet <- train.glmnet(Species~.,ttraining)
 prediction <- predict(model.glmnet,ttesting)
 prediction
-general.indexes(ttesting,prediction)
+
+# Regression
+len <- nrow(swiss)
+sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+ttesting <- swiss[sampl,]
+ttraining <- swiss[-sampl,]
+model.glmnet <- train.glmnet(Infant.Mortality~.,ttraining, family = "gaussian")
+prediction <- predict(model.glmnet, ttesting)
+prediction
 
 }
 \seealso{

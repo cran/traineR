@@ -131,6 +131,50 @@ predict.adabag.prmdt <- function(object, newdata, type = "class",...){
   return(create.prediction(object, ans))
 }
 
+#' predict.gbm.prmdt
+#'
+#' @description Return prediction for a \code{\link[gbm]{gbm}} model.
+#'
+#' @param object a \code{\link[gbm]{gbm}} model object for which prediction is desired.
+#' @param newdata an optional data frame in which to look for variables with which to predict.
+#' @param type type of prediction 'prob' or 'class' (default).
+#' @param n.trees Number of trees used in the prediction. n.trees may be a vector in which case predictions are returned for each iteration specified
+#' @param single.tree If single.tree=TRUE then predict.gbm returns only the predictions from tree(s) n.trees.
+#' @param ... additional arguments affecting the predictions produced.
+#'
+#' @importFrom gbm gbm
+#'
+#' @return a vector or matrix of predictions gbm model.
+#'
+#' @export predict.gbm.prmdt
+#' @export
+#'
+predict.gbm.prmdt <- function(object, newdata, type = "class", n.trees = NULL, single.tree = FALSE, ...) {
+
+  if("prmdt.regression" %in% class(object)) {
+    ans <- predict(original_model(object), newdata, type = "response", n.trees = n.trees, single.tree = single.tree, ...)
+    ans <- type_correction(object, ans, type == "class")
+  } else {
+    ans <- predict(original_model(object), newdata, type = "response", n.trees = n.trees, single.tree = single.tree, ...)
+
+    if(is.null(dim(ans))) {
+      if(type == "class") {
+        ans <- factor(ifelse(ans > 0.5, object$prmdt$levels[2], object$prmdt$levels[1]))
+      }
+    } else {
+      if(type == "class") {
+        ans <- apply(ans, 1, which.max)
+        ans <- factor(object$prmdt$levels[ans])
+      } else {
+        colnames(ans) <- object$prmdt$levels
+      }
+    }
+    ans <- type_correction(object, ans, type == "class")
+  }
+
+  return(create.prediction(object, ans))
+}
+
 #' predict.bayes.prmdt
 #'
 #' @description Return prediction for a \code{\link[e1071]{naiveBayes}} model.
@@ -149,9 +193,15 @@ predict.adabag.prmdt <- function(object, newdata, type = "class",...){
 #' @export predict.bayes.prmdt
 #' @export
 #'
-predict.bayes.prmdt <- function(object, newdata, type = "class", threshold = 0.001, eps = 0, ...){
-  type <- ifelse(type == "prob", "raw", type)
-  ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), type, threshold, eps, ...)
+predict.bayes.prmdt <- function(object, newdata, type = "class", threshold = 0.001, eps = 0, ...) {
+  if("prmdt.regression" %in% class(object)) {
+    ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), NULL, threshold, eps, ...)
+    ans <- as.numeric(as.character(ans))
+  } else {
+    type <- ifelse(type == "prob", "raw", type)
+    ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), type, threshold, eps, ...)
+  }
+
   ans <- type_correction(object, ans, type == "class")
   return(create.prediction(object, ans))
 }
@@ -172,9 +222,14 @@ predict.bayes.prmdt <- function(object, newdata, type = "class", threshold = 0.0
 #' @export predict.knn.prmdt
 #' @export
 #'
-predict.knn.prmdt <- function(object, newdata, type = "class", ...){
-  type <- ifelse(type == "class", "raw", type)
-  ans <- predict(original_model(object), type = type, get_test_less_predict(newdata, object$prmdt$var.pred), ...)
+predict.knn.prmdt <- function(object, newdata, type = "class", ...) {
+  if("prmdt.regression" %in% class(object)) {
+    ans <- predict(original_model(object), type = "raw", get_test_less_predict(newdata, object$prmdt$var.pred), ...)
+  } else {
+    type <- ifelse(type == "class", "raw", type)
+    ans <- predict(original_model(object), type = type, get_test_less_predict(newdata, object$prmdt$var.pred), ...)
+  }
+
   ans <- type_correction(object, ans, type == "raw")
   return(create.prediction(object, ans))
 }
@@ -195,18 +250,24 @@ predict.knn.prmdt <- function(object, newdata, type = "class", ...){
 #' @export predict.nnet.prmdt
 #' @export
 #'
-predict.nnet.prmdt <- function(object, newdata, type = "class", ...){
-  type <- ifelse(type == "prob", "raw", type)
-  ans <- predict(original_model(object),  get_test_less_predict(newdata, object$prmdt$var.pred), type, ...)
+predict.nnet.prmdt <- function(object, newdata, type = "class", ...) {
+  if("prmdt.regression" %in% class(object)) {
+    ans <- predict(original_model(object),  get_test_less_predict(newdata, object$prmdt$var.pred), type = "raw", ...)
+    ans <- ans[, 1]
+  } else {
+    type <- ifelse(type == "prob", "raw", type)
+    ans <- predict(original_model(object),  get_test_less_predict(newdata, object$prmdt$var.pred), type, ...)
 
-  num.class <- length(object$prmdt$levels)
+    num.class <- length(object$prmdt$levels)
 
-  if(type == "raw"){
-    if(num.class == 2){
-      ans <- cbind(1 - ans, ans)
-      colnames(ans) <- object$prmdt$levels
+    if(type == "raw"){
+      if(num.class == 2){
+        ans <- cbind(1 - ans, ans)
+        colnames(ans) <- object$prmdt$levels
+      }
     }
   }
+
   ans <- type_correction(object, ans, type == "class")
   return(create.prediction(object, ans))
 }
@@ -227,7 +288,7 @@ predict.nnet.prmdt <- function(object, newdata, type = "class", ...){
 #' @export predict.neuralnet.prmdt
 #' @export
 #'
-predict.neuralnet.prmdt <- function(object, newdata, type = "class", ...){
+predict.neuralnet.prmdt <- function(object, newdata, type = "class", ...) {
   selector <- unlist(lapply(newdata, is.ordered))
 
   if(any(selector)){
@@ -239,30 +300,36 @@ predict.neuralnet.prmdt <- function(object, newdata, type = "class", ...){
 
   if(length(selector) != 0){
     suppressWarnings(newdata <- dummy.data.frame(newdata[, -selector, drop = FALSE], drop = FALSE,
-                                                       dummy.classes = c("factor","character")))
+                                                 dummy.classes = c("factor","character")))
   }
   else{
     suppressWarnings(newdata <- dummy.data.frame(newdata, drop = FALSE,
-                                                       dummy.classes = c("factor","character")))
+                                                 dummy.classes = c("factor","character")))
   }
 
-  #selector <- which(colnames(newdata) == var.predict)
+  if("prmdt.regression" %in% class(object)) {
+    ans <- neuralnet::compute(original_model(object), newdata)
+    if(type == "all"){
+      return(create.prediction(object, ans))
+    }
 
-  #ans <- neuralnet::compute(original_model(object), newdata[, -selector])
-  ans <- neuralnet::compute(original_model(object), newdata)
-
-  if(type == "all"){
-    return(create.prediction(object, ans))
-  }
-
-  ans <- ans$net.result
-  colnames(ans) <- object$prmdt$levels
-
-  if(type == "class"){
-    ans <- max_col(ans)
-    #ans <- numeric_to_predict(newdata[, selector], ans)
-    ans <- numeric_to_predict(predic.var = ans, niveles = object$prmdt$levels)
+    ans <- ans$net.result[, 1]
     ans <- type_correction(object, ans, type == "class")
+  } else {
+    ans <- neuralnet::compute(original_model(object), newdata)
+
+    if(type == "all"){
+      return(create.prediction(object, ans))
+    }
+
+    ans <- ans$net.result
+    colnames(ans) <- object$prmdt$levels
+
+    if(type == "class"){
+      ans <- max_col(ans)
+      ans <- numeric_to_predict(predic.var = ans, niveles = object$prmdt$levels)
+      ans <- type_correction(object, ans, type == "class")
+    }
   }
 
   return(create.prediction(object, ans))
@@ -290,12 +357,17 @@ predict.neuralnet.prmdt <- function(object, newdata, type = "class", ...){
 #' @export
 #'
 predict.randomForest.prmdt <- function(object, newdata, type = "class", norm.votes = TRUE, predict.all = FALSE, proximity = FALSE, nodes = FALSE, cutoff, ...){
-  type <- ifelse(type == "class", "response", type)
-  ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), type, norm.votes, predict.all, proximity, nodes, cutoff, ...)
-  if(type == "prob"){
-    class(ans) <- "matrix"
-  }else{
+  if("prmdt.regression" %in% class(object)) {
+    ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), "response", norm.votes, predict.all, proximity, nodes, cutoff, ...)
     ans <- type_correction(object, ans, type == "response")
+  } else {
+    type <- ifelse(type == "class", "response", type)
+    ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), type, norm.votes, predict.all, proximity, nodes, cutoff, ...)
+    if(type == "prob"){
+      class(ans) <- "matrix"
+    }else{
+      ans <- type_correction(object, ans, type == "response")
+    }
   }
 
   return(create.prediction(object, ans))
@@ -318,8 +390,14 @@ predict.randomForest.prmdt <- function(object, newdata, type = "class", norm.vot
 #' @export predict.rpart.prmdt
 #' @export
 #'
-predict.rpart.prmdt <- function(object, newdata, type = "class", na.action = na.pass, ...){
-  ans <- predict(original_model(object), newdata, type, na.action, ...)
+predict.rpart.prmdt <- function(object, newdata, type = "class", na.action = na.pass, ...) {
+
+  if("prmdt.regression" %in% class(object)) {
+    ans <- predict(original_model(object), newdata, na.action = na.action, ...)
+  } else {
+    ans <- predict(original_model(object), newdata, type, na.action, ...)
+  }
+
   ans <- type_correction(object, ans, type == "class")
   return(create.prediction(object, ans))
 }
@@ -342,14 +420,20 @@ predict.rpart.prmdt <- function(object, newdata, type = "class", na.action = na.
 #' @export predict.svm.prmdt
 #' @export
 #'
-predict.svm.prmdt <- function(object, newdata, type = "class", decision.values = FALSE, ..., na.action = na.omit){
-  ans <- predict(original_model(object), newdata, decision.values, probability = type == "prob", ..., na.action = na.action)
-  if(type == "prob"){
-    ans <- attr(ans, "probabilities")
-    ans <- ans[,object$prmdt$levels]
-  }else{
+predict.svm.prmdt <- function(object, newdata, type = "class", decision.values = FALSE, ..., na.action = na.omit) {
+  if("prmdt.regression" %in% class(object)) {
+    ans <- predict(original_model(object), newdata, decision.values, probability = F, ..., na.action = na.action)
     ans <- type_correction(object, ans,  type == "class")
+  } else {
+    ans <- predict(original_model(object), newdata, decision.values, probability = type == "prob", ..., na.action = na.action)
+    if(type == "prob"){
+      ans <- attr(ans, "probabilities")
+      ans <- ans[,object$prmdt$levels]
+    }else{
+      ans <- type_correction(object, ans,  type == "class")
+    }
   }
+
   return(create.prediction(object, ans))
 }
 
@@ -393,45 +477,38 @@ predict.xgb.Booster.prmdt <- function(object, newdata, type = "class", missing =
     }
   }
 
-  #test_aux <- newdata |> select(c(.colnames,var.pred))  |> select_on_class(c("numeric","integer", "factor"))
   test_aux <- newdata |> select(c(.colnames))  |> select_on_class(c("numeric","integer", "factor"))
   test_aux[] <- lapply(test_aux, as.numeric)
-
-
-  # if(min(test_aux[,var.pred]) != 0){
-  #   test_aux[,var.pred]  <- test_aux[,var.pred]  - 1
-  # }
-
-  #selector <- which(colnames(test_aux) == var.pred)
-  #test_aux  <- xgb.DMatrix(data = data.matrix(test_aux[,-selector]), label = data.matrix(test_aux[,selector]))
   test_aux  <- xgb.DMatrix(data = data.matrix(test_aux))
 
-  ans <- predict(original_model(object), test_aux, missing, outputmargin, ntreelimit, predleaf, predcontrib, approxcontrib, predinteraction, reshape, ...)
+  if("prmdt.regression" %in% class(object)) {
+    ans <- predict(original_model(object), test_aux, missing, outputmargin, ntreelimit, predleaf, predcontrib, approxcontrib, predinteraction, reshape, ...)
+  } else {
+    ans <- predict(original_model(object), test_aux, missing, outputmargin, ntreelimit, predleaf, predcontrib, approxcontrib, predinteraction, reshape, ...)
 
-  num.class <- length(object$prmdt$levels)
+    num.class <- length(object$prmdt$levels)
 
-  if(type == "class"){
-    if(num.class > 2){
-      ans <- max.col(matrix(ans, ncol = num.class, byrow = TRUE))
-    }else{
-      ans <- ifelse(ans > 0.5, 2, 1)
+    if(type == "class") {
+      if(num.class > 2) {
+        ans <- max.col(matrix(ans, ncol = num.class, byrow = TRUE))
+      } else {
+        ans <- ifelse(ans > 0.5, 2, 1)
+      }
+      ans <- numeric_to_predict(predic.var = ans, niveles = object$prmdt$levels)
     }
-    #ans <- numeric_to_predict(newdata[,var.pred], ans)
-    ans <- numeric_to_predict(predic.var = ans, niveles = object$prmdt$levels)
-  }
 
-  if(type == "prob"){
-    if(num.class > 2){
-      ans <- matrix(ans, ncol = num.class, byrow = TRUE)
-    }else{
-      ans <- matrix(ans, ncol = 1, byrow = TRUE)
-      ans <- cbind(1 - ans, ans)
+    if(type == "prob") {
+      if(num.class > 2) {
+        ans <- matrix(ans, ncol = num.class, byrow = TRUE)
+      } else {
+        ans <- matrix(ans, ncol = 1, byrow = TRUE)
+        ans <- cbind(1 - ans, ans)
+      }
+      colnames(ans) <- object$prmdt$levels
     }
-    colnames(ans) <- object$prmdt$levels
   }
 
   ans <- type_correction(object, ans, type == "class")
-
   return(create.prediction(object, ans))
 }
 
@@ -456,17 +533,23 @@ predict.xgb.Booster.prmdt <- function(object, newdata, type = "class", missing =
 #' @export
 #'
 predict.glm.prmdt <- function(object, newdata, type = "class", se.fit = FALSE, dispersion = NULL, terms = NULL, na.action = na.pass, ...){
-  ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), "response",  se.fit = se.fit, dispersion = dispersion, terms = terms, na.action = na.action, ... = ...)
-  levels.class <- object$prmdt$levels
 
-  if(type == "prob"){
-    ans <- matrix(as.numeric(ans), ncol = 1, byrow = TRUE)
-    ans <- cbind(1 - ans, ans)
-    colnames(ans) <- levels.class
-  }else{
-    ans <- ifelse(ans > 0.5, levels.class[2], levels.class[1])
-    ans <- type_correction(object, ans, type == "class")
+  if("prmdt.regression" %in% class(object)) {
+    ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), "response",  se.fit = se.fit, dispersion = dispersion, terms = terms, na.action = na.action, ... = ...)
+  } else {
+    ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), "response",  se.fit = se.fit, dispersion = dispersion, terms = terms, na.action = na.action, ... = ...)
+    levels.class <- object$prmdt$levels
+
+    if(type == "prob"){
+      ans <- matrix(as.numeric(ans), ncol = 1, byrow = TRUE)
+      ans <- cbind(1 - ans, ans)
+      colnames(ans) <- levels.class
+    }else{
+      ans <- ifelse(ans > 0.5, levels.class[2], levels.class[1])
+      ans <- type_correction(object, ans, type == "class")
+    }
   }
+
   return(create.prediction(object, ans))
 }
 
@@ -493,15 +576,22 @@ predict.glmnet.prmdt <- function(object, newdata, type = "class", s = NULL,...){
   if(is.null(s) && !is.null(object$prmdt$lambda.min)){
     s <- object$prmdt$lambda.min
   }
-  if(type == "prob"){
-    ans <- predict(original_model(object), testing, s = s, type = "response", ...)
-  }
-  else{
-    ans <- predict(original_model(object), testing, s = s, type = type, ...)
+
+  if("prmdt.regression" %in% class(object)) {
+    ans <- predict(original_model(object), testing, s = s, type = "class", ...)[, 1]
+    ans <- type_correction(object, ans, type == "class")
+  } else {
+    if(type == "prob"){
+      ans <- predict(original_model(object), testing, s = s, type = "response", ...)
+    }
+    else{
+      ans <- predict(original_model(object), testing, s = s, type = type, ...)
+    }
+
+    if(!(is.null(object$prmdt$lambda.min) && is.null(s))){
+      ans <- type_correction(object, ans, type == "class")
+    }
   }
 
-  if(!(is.null(object$prmdt$lambda.min) && is.null(s))){
-    ans <- type_correction(object, ans, type == "class")
-  }
   return(create.prediction(object, ans))
 }

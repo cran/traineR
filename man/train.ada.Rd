@@ -42,7 +42,6 @@ prob <- predict(modelo.ada, data.test , type = "prob")
 prob
 prediccion <- predict(modelo.ada, data.test , type = "class")
 prediccion
-confusion.matrix(data.test, prediccion)
 
 }
 \seealso{

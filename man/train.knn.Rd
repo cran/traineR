@@ -50,6 +50,7 @@ the parameter information was taken from the original function \code{\link[kknn]
 }
 \examples{
 
+# Classification
 data("iris")
 
 n <- seq_len(nrow(iris))
@@ -63,7 +64,15 @@ prob <- predict(modelo.knn, data.test, type = "prob")
 prob
 prediccion <- predict(modelo.knn, data.test, type = "class")
 prediccion
-confusion.matrix(data.test, prediccion)
+
+# Regression
+len <- nrow(swiss)
+sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+ttesting <- swiss[sampl,]
+ttraining <- swiss[-sampl,]
+model.knn <- train.knn(Infant.Mortality~.,ttraining)
+prediction <- predict(model.knn, ttesting)
+prediction
 
 }
 \seealso{

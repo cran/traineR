@@ -28,6 +28,7 @@ the parameter information was taken from the original function  \code{\link[rand
 }
 \examples{
 
+# Classification
 data("iris")
 
 n <- seq_len(nrow(iris))
@@ -41,7 +42,15 @@ prob <- predict(modelo.rf, data.test, type = "prob")
 prob
 prediccion <- predict(modelo.rf, data.test, type = "class")
 prediccion
-confusion.matrix(data.test, prediccion)
+
+# Regression
+len <- nrow(swiss)
+sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+ttesting <- swiss[sampl,]
+ttraining <- swiss[-sampl,]
+model.rf <- train.randomForest(Infant.Mortality~.,ttraining)
+prediction <- predict(model.rf, ttesting)
+prediction
 
 }
 \seealso{

@@ -10,8 +10,7 @@ numerical.predictive.power(
   variable.to.compare,
   ylab = "",
   xlab = "",
-  main = paste("Variable Density", variable.to.compare, "according to",
-    predict.variable),
+  main = paste("Variable Density", variable.to.compare, "according to", predict.variable),
   col = NA
 )
 }

@@ -71,6 +71,7 @@ Provides a wrapping function for the \code{\link[stats]{glm}}
 }
 \examples{
 
+# Classification
 data("Puromycin")
 
 n <- seq_len(nrow(Puromycin))
@@ -84,7 +85,16 @@ prob <- predict(modelo.glm, data.test , type = "prob")
 prob
 prediccion <- predict(modelo.glm, data.test , type = "class")
 prediccion
-confusion.matrix(data.test, prediccion)
+
+# Regression
+len <- nrow(swiss)
+sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+ttesting <- swiss[sampl,]
+ttraining <- swiss[-sampl,]
+model.glm <- train.glm(Infant.Mortality~.,ttraining, family = "gaussian")
+prediction <- predict(model.glm, ttesting)
+prediction
+
 
 }
 \seealso{

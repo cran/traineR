@@ -35,9 +35,9 @@ sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
 ttesting <- iris[sampl,]
 ttraining <- iris[-sampl,]
 model.qda <- train.qda(Species~.,ttraining)
-prediction <- predict(model.qda,ttesting)
+model.qda
+prediction <- predict(model.qda, ttesting)
 prediction
-general.indexes(ttesting,prediction)
 
 }
 \seealso{

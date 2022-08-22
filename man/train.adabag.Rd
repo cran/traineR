@@ -49,14 +49,16 @@ The parameter information was taken from the original function \code{\link[adaba
 
 data <- iris
 n <- nrow(data)
+
 sam <- sample(1:n,n*0.75)
 training <- data[sam,]
 testing <- data[-sam,]
+
 model <- train.adabag(formula = Species~.,data = training,minsplit = 2,
-maxdepth = 30, mfinal = 10)
+                      maxdepth = 30, mfinal = 10)
+model
 predict <- predict(object = model,testing,type = "class")
-MC <- confusion.matrix(testing,predict)
-general.indexes(mc = MC)
+predict
 
 }
 \seealso{

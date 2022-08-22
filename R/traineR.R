@@ -1,7 +1,7 @@
 #' @name traineR
 #' @aliases traineR
 #' @docType package
-#' @title Predictive Models Homologator
+#' @title Predictive (Classification and Regression) Models Homologator
 #' @author
 #' Maintainer: Oldemar Rodriguez Rojas <oldemar.rodriguez@ucr.ac.cr>\cr
 #' \itemize{
@@ -11,7 +11,7 @@
 #'   \item Diego Jiménez
 #' }
 #' @description
-#' Methods to unify the different ways of creating predictive models and their different predictive formats. It includes
+#' Methods to unify the different ways of creating predictive models and their different predictive formats for classification and regression. It includes
 #' methods such as K-Nearest Neighbors Schliep, K. P. (2004) <doi:10.5282/ubm/epub.1769>, Decision Trees Leo Breiman, Jerome H. Friedman, Richard A. Olshen, Charles J. Stone (2017) <doi:10.1201/9781315139470>,
 #' ADA Boosting Esteban Alfaro, Matias Gamez, Noelia García (2013) <doi:10.18637/jss.v054.i02>, Extreme Gradient Boosting Chen & Guestrin (2016) <doi:10.1145/2939672.2939785>,
 #' Random Forest Breiman (2001) <doi:10.1023/A:1010933404324>, Neural Networks Venables, W. N., & Ripley, B. D. (2002) <ISBN:0-387-95457-0>,
@@ -22,8 +22,8 @@
 #' \tabular{ll}{
 #' Package: \tab traineR\cr
 #' Type: \tab Package\cr
-#' Version: \tab 1.7.4\cr
-#' Date: \tab 2022-04-29\cr
+#' Version: \tab 2.0.4\cr
+#' Date: \tab 2022-08-22\cr
 #' License: \tab GPL (>=2)\cr
 #' }
 #' @keywords package

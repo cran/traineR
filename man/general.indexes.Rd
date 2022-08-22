@@ -14,13 +14,15 @@ general.indexes(newdata, prediction, mc = NULL)
 \item{mc}{(optional) a matrix for calculating the indices. If mc is entered as parameter newdata and prediction are not necessary.}
 }
 \value{
-A list with the confusion matrix, overall accuracy, overall error and the category accuracy. The class of this list is indexes.prmdt
+A list with the appropiate error and precision measurement. The class of this list is indexes.prmdt
 }
 \description{
-Calculates the confusion matrix, overall accuracy, overall error and the category accuracy
+Calculates the confusion matrix, overall accuracy, overall error and the category accuracy for a classification problem
+and the Root Mean Square Error, Mean Absolute Error, Relative Error and Correlation for a regression problem.
 }
 \examples{
 
+# Classification
 data("iris")
 
 n <- seq_len(nrow(iris))
@@ -29,11 +31,17 @@ data.train <- iris[.sample,]
 data.test <- iris[-.sample,]
 
 modelo.knn <- train.knn(Species~., data.train)
-modelo.knn
-prob <- predict(modelo.knn, data.test, type = "prob")
-prob
 prediccion <- predict(modelo.knn, data.test, type = "class")
-prediccion
 general.indexes(data.test, prediccion)
+
+# Regression
+len <- nrow(swiss)
+sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
+ttesting <- swiss[sampl,]
+ttraining <- swiss[-sampl,]
+model.knn <- train.knn(Infant.Mortality~.,ttraining)
+prediccion <- predict(model.knn, ttesting)
+prediccion
+general.indexes(ttesting, prediccion)
 
 }

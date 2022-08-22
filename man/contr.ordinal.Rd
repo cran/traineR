@@ -6,7 +6,14 @@
 \usage{
 contr.ordinal(n, contrasts = TRUE)
 }
-\description{
-contr.ordinal
+\arguments{
+\item{n}{A vector containing levels of a factor, or the number of levels.}
+
+\item{contrasts}{A logical value indicating whether contrasts should be computed.}
 }
-\keyword{internal}
+\value{
+A matrix with n rows and n-1 columns for contr.ordinal, a matrix with n rows and n columns for contr.dummy and a vector of length n for contr.metric.
+}
+\description{
+Returns a matrix of contrasts for the \code{\link[kknn]{train.kknn}}.
+}
