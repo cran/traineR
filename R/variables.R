@@ -186,12 +186,11 @@ categorical.predictive.power <- function(data, predict.variable, variable.to.com
   }
 }
 
-
-#' boosting.importance.plot
+#' importance.plot
 #'
-#' @description Function that graphs the importance of the variables for a boosting model.
+#' @description Function that graphs the importance of the variables.
 #'
-#' @param model fitted model object of class adabag.prmdt or boosting.
+#' @param model fitted model object.
 #' @param col the color of the chart bars.
 #'
 #' @seealso \code{\link[ggplot2]{ggplot}}, \code{\link[traineR]{train.adabag}}, \code{\link[adabag]{boosting}}
@@ -202,6 +201,8 @@ categorical.predictive.power <- function(data, predict.variable, variable.to.com
 #'
 #' @import ggplot2
 #' @importFrom stats reorder
+#' @importFrom gbm summary.gbm
+#' @importFrom xgboost xgb.importance
 #'
 #' @export
 #'
@@ -216,18 +217,31 @@ categorical.predictive.power <- function(data, predict.variable, variable.to.com
 #'
 #'model <- train.adabag(formula = Species~.,data = training,minsplit = 2,
 #'  maxdepth = 30, mfinal = 10)
-#'boosting.importance.plot(model)
+#'importance.plot(model)
 #'
-boosting.importance.plot <- function(model, col = "steelblue"){
-  df <- as.data.frame(model$importance)
-  colnames(df) <- c("importance")
-  df$importance <- round(df$importance,digits = 2)
-  ggplot(data=df, aes(x=reorder(row.names(df), .data$importance),y=.data$importance)) +
-    geom_bar(stat="identity", fill=col,width = 0.6)+
+importance.plot <- function(model, col = "steelblue") {
+  if("adabag.prmdt" %in% class(model)) {
+    df <- data.frame(x = names(model$importance), y = model$importance)
+  } else if("randomForest.prmdt" %in% class(model)) {
+    aux <- data.frame(model$importance)
+    df <- data.frame(x = row.names(aux), y = aux$MeanDecreaseGini)
+  } else if("xgb.Booster.prmdt" %in% class(model)) {
+    aux <- data.frame(xgb.importance(model = model))
+    df <- data.frame(x = aux$Feature, y = aux$Frequency)
+  } else if("gbm.prmdt" %in% class(model)) {
+    aux <- summary.gbm(model, plotit = F)
+    df <- data.frame(x = aux$var, y = aux$rel.inf)
+  } else {
+    stop("The model does not have this functionality.")
+  }
+
+  df$y <- round(df$y, digits = 2)
+  ggplot(data = df, aes(x = reorder(x, .data$y), y = y)) +
+    geom_bar(stat = "identity", fill = col, width = 0.6) +
     theme_minimal() +
-    labs(title= "Variable Importance",
-         y="Percentage of Importance", x = "Variable Names") +
-    scale_y_continuous(breaks=seq(0,100,10)) +
+    labs(title = "Variable Importance",
+         y = "Percentage of Importance", x = "Variable Names") +
+    scale_y_continuous(breaks = seq(0, 100, 10)) +
     coord_flip()
 }
 

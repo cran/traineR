@@ -4,16 +4,9 @@
 \alias{dummy.data.frame}
 \title{dummy.data.frame}
 \usage{
-dummy.data.frame(
-  data,
-  names = NULL,
-  omit.constants = TRUE,
-  dummy.classes = getOption("dummy.classes"),
-  all = TRUE,
-  ...
-)
+dummy.data.frame(data)
 }
 \description{
-function from dummies package
+dummy.data.frame
 }
 \keyword{internal}

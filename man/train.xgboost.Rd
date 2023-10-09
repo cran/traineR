@@ -125,6 +125,7 @@ the parameter information was taken from the original function \code{\link[xgboo
 }
 \examples{
 
+\donttest{
 # Classification
 data("iris")
 
@@ -133,7 +134,7 @@ n <- seq_len(nrow(iris))
 data.train <- iris[.sample,]
 data.test <- iris[-.sample,]
 
-modelo.xg <- train.xgboost(Species~., data.train, nrounds = 79, maximize = FALSE)
+modelo.xg <- train.xgboost(Species~., data.train, nrounds = 10, maximize = FALSE)
 modelo.xg
 prob <- predict(modelo.xg, data.test, type = "prob")
 prob
@@ -145,10 +146,10 @@ len <- nrow(swiss)
 sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
 ttesting <- swiss[sampl,]
 ttraining <- swiss[-sampl,]
-model.xgb <- train.xgboost(Infant.Mortality~.,ttraining, nrounds = 79, maximize = FALSE)
+model.xgb <- train.xgboost(Infant.Mortality~.,ttraining, nrounds = 10, maximize = FALSE)
 prediction <- predict(model.xgb, ttesting)
 prediction
-
+}
 
 }
 \seealso{

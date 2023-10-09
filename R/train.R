@@ -690,8 +690,7 @@ train.neuralnet <- function(formula, data, hidden = 1, threshold = 0.01, stepmax
   selector <- which(colnames(data) == var.predict)
   class.names <- levels(data[,selector])
 
-  suppressWarnings(data <- cbind(as.data.frame(dummy.data.frame(data[, -selector, drop = FALSE], drop = FALSE,
-                                                                      dummy.classes = c("factor","character"))), data[,selector]))
+  suppressWarnings(data <- cbind(as.data.frame(dummy.data.frame(data[, -selector, drop = FALSE])), data[,selector]))
   colnames(data) <- c(colnames(data)[-ncol(data)], var.predict)
 
   .vars <- all.vars(formula[-2])
@@ -864,6 +863,7 @@ train.svm <- function(formula, data, ..., subset, na.action = na.omit, scale = T
 #'
 #' @examples
 #'
+#' \donttest{
 #' # Classification
 #' data("iris")
 #'
@@ -872,7 +872,7 @@ train.svm <- function(formula, data, ..., subset, na.action = na.omit, scale = T
 #' data.train <- iris[.sample,]
 #' data.test <- iris[-.sample,]
 #'
-#' modelo.xg <- train.xgboost(Species~., data.train, nrounds = 79, maximize = FALSE)
+#' modelo.xg <- train.xgboost(Species~., data.train, nrounds = 10, maximize = FALSE)
 #' modelo.xg
 #' prob <- predict(modelo.xg, data.test, type = "prob")
 #' prob
@@ -884,10 +884,10 @@ train.svm <- function(formula, data, ..., subset, na.action = na.omit, scale = T
 #' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
 #' ttesting <- swiss[sampl,]
 #' ttraining <- swiss[-sampl,]
-#' model.xgb <- train.xgboost(Infant.Mortality~.,ttraining, nrounds = 79, maximize = FALSE)
+#' model.xgb <- train.xgboost(Infant.Mortality~.,ttraining, nrounds = 10, maximize = FALSE)
 #' prediction <- predict(model.xgb, ttesting)
 #' prediction
-#'
+#' }
 #'
 train.xgboost <- function(formula, data, nrounds, watchlist = list(), obj = NULL, feval = NULL,
                           verbose = 1, print_every_n = 1L, early_stopping_rounds = NULL, maximize = NULL,

@@ -1,12 +1,12 @@
 Package: traineR
 Type: Package
 Title: Predictive (Classification and Regression) Models Homologator
-Version: 2.0.4
+Version: 2.1.0
 Authors@R: c(
     person("Oldemar", "Rodriguez R.", email = "oldemar.rodriguez@ucr.ac.cr", role = c("aut","cre")),
     person("Andres", "Navarro D.", role = c("aut")),
     person("Ariel", "Arroyo S.", role = c("aut")),
-    person("Diego", "Jimenez A.", role = c("ctb")))
+    person("Diego", "Jimenez A.", role = c("aut")))
 Depends: R (>= 3.5)
 Imports: neuralnet (>= 1.44.2), rpart (>= 4.1-13), xgboost (>=
         0.81.0.1), randomForest (>= 4.6-14), e1071 (>= 1.7-0.1), kknn
@@ -22,14 +22,15 @@ Description: Methods to unify the different ways of creating predictive models a
        Logistic Regression Dobson, A. J., & Barnett, A. G. (2018) <doi:10.1201/9781315182780> and Penalized Logistic Regression Friedman, J. H., Hastie, T., & Tibshirani, R. (2010) <doi:10.18637/jss.v033.i01>.
 License: GPL (>= 2)
 Encoding: UTF-8
-URL: https://www.promidat.com
-RoxygenNote: 7.2.1
+URL: https://promidat.website/,https://github.com/PROMiDAT/traineR
+BugReports: https://github.com/PROMiDAT/traineR/issues
+RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2022-08-22 21:53:53 UTC; promidat05
+Packaged: 2023-10-09 16:03:31 UTC; promidat05
 Author: Oldemar Rodriguez R. [aut, cre],
   Andres Navarro D. [aut],
   Ariel Arroyo S. [aut],
-  Diego Jimenez A. [ctb]
+  Diego Jimenez A. [aut]
 Maintainer: Oldemar Rodriguez R. <oldemar.rodriguez@ucr.ac.cr>
 Repository: CRAN
-Date/Publication: 2022-08-22 22:50:02 UTC
+Date/Publication: 2023-10-09 18:00:02 UTC

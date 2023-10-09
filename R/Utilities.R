@@ -240,79 +240,24 @@ varplot <- function(x, ...){
   ada::varplot(x, ...)
 }
 
-#' dummy
-#'
-#' function from dummies package
-#'
-#' @keywords internal
-#'
-dummy <- function (x, data = NULL, sep = "", drop = TRUE, fun = as.integer,
-                   verbose = FALSE)
-{
-  if (is.null(data)) {
-    name <- as.character(sys.call(1))[2]
-    name <- sub("^(.*\\$)", "", name)
-    name <- sub("\\[.*\\]$", "", name)
-  }
-  else {
-    if (length(x) > 1)
-      stop("More than one variable provided to produce dummy variable.")
-    name <- x
-    x <- data[, name]
-  }
-  if (drop == FALSE && is.factor(x)) {
-    x <- factor(x, levels = levels(x), exclude = NULL)
-  } else {
-    x <- factor(x, exclude = NULL)
-  }
-  if (length(levels(x)) < 2) {
-    if (verbose)
-      warning(name, " has only 1 level. Producing dummy variable anyway.")
-    return(matrix(rep(1, length(x)), ncol = 1, dimnames = list(rownames(x),
-                                                               c(paste(name, sep, x[[1]], sep = "")))))
-  }
-  mm <- model.matrix(~x - 1, model.frame(~x - 1), contrasts = FALSE)
-  colnames.mm <- colnames(mm)
-  if (verbose)
-    cat(" ", name, ":", ncol(mm), "dummy varibles created\n")
-  mm <- matrix(fun(mm), nrow = nrow(mm), ncol = ncol(mm), dimnames = list(NULL,
-                                                                          colnames.mm))
-  colnames(mm) <- sub("^x", paste(name, sep, sep = ""), colnames(mm))
-  if (!is.null(row.names(data)))
-    rownames(mm) <- rownames(data)
-  return(mm)
-}
-
 #' dummy.data.frame
 #'
-#' function from dummies package
-#'
 #' @keywords internal
 #'
-dummy.data.frame <- function (data, names = NULL, omit.constants = TRUE, dummy.classes = getOption("dummy.classes"),
-          all = TRUE, ...)
-{
-  df <- data.frame(row.names = row.names(data))
-  new.attr <- list()
-  for (nm in names(data)) {
-    old.attr <- attr(df, "dummies")
-    if (nm %in% names || (is.null(names) && (dummy.classes ==
-                                             "ALL" || class(data[, nm]) %in% dummy.classes))) {
-      dummies <- dummy(nm, data, ...)
-      if (ncol(dummies) == 1 & omit.constants) {
-        dummies <- matrix(nrow = nrow(data), ncol = 0)
-      }
-      if (ncol(dummies) > 0)
-        new.attr[[nm]] <- (ncol(df) + 1):(ncol(df) +
-                                            ncol(dummies))
-    }
-    else {
-      if (!all)
-        (next)()
-      dummies <- data[, nm, drop = FALSE]
-    }
-    df <- cbind(df, dummies)
+dummy.data.frame <- function (data) {
+  if(is.null(data)) {
+    return(NULL)
   }
-  attr(df, "dummies") <- new.attr
-  return(df)
+
+  res <- data.frame(row.names = row.names(data))
+  for (x in names(data)) {
+    if(is.numeric(data[[x]])) {
+      res[ , x] <- data[[x]]
+    } else {
+      for (categoria in unique(data[[x]])) {
+        res[[paste0(x, '.', categoria)]] <- as.numeric(data[[x]] == categoria)
+      }
+    }
+  }
+  return(res)
 }

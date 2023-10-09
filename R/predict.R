@@ -299,12 +299,10 @@ predict.neuralnet.prmdt <- function(object, newdata, type = "class", ...) {
   selector <- which(colnames(newdata) == var.predict)
 
   if(length(selector) != 0){
-    suppressWarnings(newdata <- dummy.data.frame(newdata[, -selector, drop = FALSE], drop = FALSE,
-                                                 dummy.classes = c("factor","character")))
+    suppressWarnings(newdata <- dummy.data.frame(newdata[, -selector, drop = FALSE]))
   }
   else{
-    suppressWarnings(newdata <- dummy.data.frame(newdata, drop = FALSE,
-                                                 dummy.classes = c("factor","character")))
+    suppressWarnings(newdata <- dummy.data.frame(newdata))
   }
 
   if("prmdt.regression" %in% class(object)) {
