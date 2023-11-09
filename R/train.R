@@ -693,6 +693,8 @@ train.neuralnet <- function(formula, data, hidden = 1, threshold = 0.01, stepmax
   suppressWarnings(data <- cbind(as.data.frame(dummy.data.frame(data[, -selector, drop = FALSE])), data[,selector]))
   colnames(data) <- c(colnames(data)[-ncol(data)], var.predict)
 
+  selector <- which(colnames(data) == var.predict)
+
   .vars <- all.vars(formula[-2])
   if(length(.vars) == 1 && .vars == "."){
     .colnames <- colnames(data[,-selector])
