@@ -1,6 +1,5 @@
 #' @name traineR
 #' @aliases traineR
-#' @docType package
 #' @title Predictive (Classification and Regression) Models Homologator
 #' @author
 #' Maintainer: Oldemar Rodriguez Rojas <oldemar.rodriguez@ucr.ac.cr>\cr
@@ -22,12 +21,12 @@
 #' \tabular{ll}{
 #' Package: \tab traineR\cr
 #' Type: \tab Package\cr
-#' Version: \tab 2.2.0\cr
-#' Date: \tab 2023-11-09\cr
+#' Version: \tab 2.2.2\cr
+#' Date: \tab 2025-05-23\cr
 #' License: \tab GPL (>=2)\cr
 #' }
 #' @keywords package
-#' @docType package
+"_PACKAGE"
 
 NULL
 utils::globalVariables(c(

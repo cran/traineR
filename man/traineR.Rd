@@ -2,6 +2,7 @@
 % Please edit documentation in R/traineR.R
 \docType{package}
 \name{traineR}
+\alias{traineR-package}
 \alias{traineR}
 \title{Predictive (Classification and Regression) Models Homologator}
 \description{
@@ -17,10 +18,18 @@ Logistic Regression Dobson, A. J., & Barnett, A. G. (2018) <doi:10.1201/97813151
 \tabular{ll}{
 Package: \tab traineR\cr
 Type: \tab Package\cr
-Version: \tab 2.2.0\cr
-Date: \tab 2023-11-09\cr
+Version: \tab 2.2.2\cr
+Date: \tab 2025-05-23\cr
 License: \tab GPL (>=2)\cr
 }
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://promidat.website/}
+  \item Report bugs at \url{https://github.com/PROMiDAT/traineR/issues}
+}
+
 }
 \author{
 Maintainer: Oldemar Rodriguez Rojas <oldemar.rodriguez@ucr.ac.cr>\cr
