@@ -459,44 +459,88 @@ predict.svm.prmdt <- function(object, newdata, type = "class", decision.values =
 #' @export predict.xgb.Booster.prmdt
 #' @export
 #'
-predict.xgb.Booster.prmdt <- function(object, newdata, type = "class", missing = NA, outputmargin = FALSE, ntreelimit = NULL, predleaf = FALSE, predcontrib = FALSE,
-                                approxcontrib = FALSE, predinteraction = FALSE, reshape = FALSE, ...){
+predict.xgb.Booster.prmdt <- function(
+    object, newdata, type = "class",
+    missing = NA, outputmargin = FALSE, ntreelimit = NULL,
+    predleaf = FALSE, predcontrib = FALSE,
+    approxcontrib = FALSE, predinteraction = FALSE,
+    reshape = FALSE, ...
+){
+
+  ## ==============================
+  ## EXCEPCIÓN LOCAL PARA XGBOOST
+  ## ==============================
+  booster <- object$model
 
   .colnames <- all.vars(object$prmdt$vars)
-  var.pred <-  object$prmdt$var.pred
+  var.pred  <- object$prmdt$var.pred
   selector <- which(colnames(newdata) == var.pred)
 
-  if(length(.colnames) == 1 && .colnames == "."){
-    if(length(selector) != 0){
-      .colnames <- colnames(newdata[,-selector, drop = FALSE])
-    }
-    else{
+  if (length(.colnames) == 1 && .colnames == ".") {
+    if (length(selector) != 0) {
+      .colnames <- colnames(newdata[, -selector, drop = FALSE])
+    } else {
       .colnames <- colnames(newdata)
     }
   }
 
-  test_aux <- newdata |> select(c(.colnames))  |> select_on_class(c("numeric","integer", "factor"))
-  test_aux[] <- lapply(test_aux, as.numeric)
-  test_aux  <- xgb.DMatrix(data = data.matrix(test_aux))
+  test_aux <- newdata |>
+    select(c(.colnames)) |>
+    select_on_class(c("numeric", "integer", "factor"))
 
-  if("prmdt.regression" %in% class(object)) {
-    ans <- predict(original_model(object), test_aux, missing, outputmargin, ntreelimit, predleaf, predcontrib, approxcontrib, predinteraction, reshape, ...)
-  } else {
-    ans <- predict(original_model(object), test_aux, missing, outputmargin, ntreelimit, predleaf, predcontrib, approxcontrib, predinteraction, reshape, ...)
+  test_aux[] <- lapply(test_aux, as.numeric)
+
+  test_aux <- xgboost::xgb.DMatrix(
+    data = data.matrix(test_aux)
+  )
+
+  ## ==============================
+  ## PREDICCIÓN
+  ## ==============================
+  predleaf <- isTRUE(predleaf)
+
+  # convertir ntreelimit (si viene) a iterationrange
+  iterationrange <- NULL
+  if (!is.null(ntreelimit)) {
+    iterationrange <- c(0L, as.integer(ntreelimit))
+  }
+
+  ans <- predict(
+    object = booster,
+    newdata = test_aux,
+    missing = missing,
+    outputmargin = outputmargin,
+    iterationrange = iterationrange,
+    predleaf = predleaf,
+    predcontrib = predcontrib,
+    approxcontrib = approxcontrib,
+    predinteraction = predinteraction,
+    ...
+  )
+
+
+
+  ## ==============================
+  ## POST-PROCESO
+  ## ==============================
+  if (!("prmdt.regression" %in% class(object))) {
 
     num.class <- length(object$prmdt$levels)
 
-    if(type == "class") {
-      if(num.class > 2) {
+    if (type == "class") {
+      if (num.class > 2) {
         ans <- max.col(matrix(ans, ncol = num.class, byrow = TRUE))
       } else {
         ans <- ifelse(ans > 0.5, 2, 1)
       }
-      ans <- numeric_to_predict(predic.var = ans, niveles = object$prmdt$levels)
+      ans <- numeric_to_predict(
+        predic.var = ans,
+        niveles = object$prmdt$levels
+      )
     }
 
-    if(type == "prob") {
-      if(num.class > 2) {
+    if (type == "prob") {
+      if (num.class > 2) {
         ans <- matrix(ans, ncol = num.class, byrow = TRUE)
       } else {
         ans <- matrix(ans, ncol = 1, byrow = TRUE)

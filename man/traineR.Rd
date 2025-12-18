@@ -18,8 +18,8 @@ Logistic Regression Dobson, A. J., & Barnett, A. G. (2018) <doi:10.1201/97813151
 \tabular{ll}{
 Package: \tab traineR\cr
 Type: \tab Package\cr
-Version: \tab 2.2.2\cr
-Date: \tab 2025-05-23\cr
+Version: \tab 2.2.9\cr
+Date: \tab 2025-12-16\cr
 License: \tab GPL (>=2)\cr
 }
 }
@@ -38,6 +38,7 @@ Maintainer: Oldemar Rodriguez Rojas <oldemar.rodriguez@ucr.ac.cr>\cr
   \item Andres Navarro D
   \item Ariel Arroyo S
   \item Diego Jiménez
+  \item Jennifer Lobo V
 }
 }
 \keyword{package}

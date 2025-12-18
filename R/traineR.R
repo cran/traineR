@@ -8,6 +8,7 @@
 #'   \item Andres Navarro D
 #'   \item Ariel Arroyo S
 #'   \item Diego Jiménez
+#'   \item Jennifer Lobo V
 #' }
 #' @description
 #' Methods to unify the different ways of creating predictive models and their different predictive formats for classification and regression. It includes
@@ -21,8 +22,8 @@
 #' \tabular{ll}{
 #' Package: \tab traineR\cr
 #' Type: \tab Package\cr
-#' Version: \tab 2.2.2\cr
-#' Date: \tab 2025-05-23\cr
+#' Version: \tab 2.2.9\cr
+#' Date: \tab 2025-12-16\cr
 #' License: \tab GPL (>=2)\cr
 #' }
 #' @keywords package

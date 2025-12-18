@@ -2,25 +2,299 @@
 #'
 #' @keywords internal
 #'
-create.model <- function(model, formula, data,  name = NULL){
-  .var                 <- as.character(formula[2])
+create.model <- function(model, formula, data, name = NULL){
+
+  .var <- as.character(formula[2])
+
+  ## ==============================
+  ## EXCEPCIÓN TEMPRANA: XGBOOST
+  ## ==============================
+  if (inherits(model, "xgb.Booster")) {
+
+    prmdt <- list(
+      var.pred = .var,
+      vars     = formula[-2],
+      type     = class(data[, .var])
+    )
+
+    if (!is.numeric(data[[.var]])) {
+      prmdt$levels <- levels(data[, .var])
+      tipo <- "prmdt.clasification"
+    } else {
+      tipo <- "prmdt.regression"
+    }
+
+    # metadata opcional
+    if (!is.null(model$evaluation_log))
+      prmdt$evaluation_log <- model$evaluation_log
+
+    if (!is.null(model$best_iteration))
+      prmdt$best_iteration <- model$best_iteration
+
+    if (!is.null(model$best_score))
+      prmdt$best_score <- model$best_score
+
+    wrapper <- list(
+      model = model,
+      prmdt = prmdt
+    )
+
+    if (is.null(name)) {
+      class(wrapper) <- c("prmdt", "xgb.Booster.prmdt", tipo)
+    } else {
+      class(wrapper) <- c("prmdt", name, "xgb.Booster.prmdt", tipo)
+    }
+
+    return(wrapper)
+  }
+
+  ## ==============================
+  ## RESTO DE MODELOS (GENÉRICO)
+  ## ==============================
   model$prmdt$var.pred <- .var
   model$prmdt$vars     <- formula[-2]
   model$prmdt$type     <- class(data[, .var])
-  if(is.numeric(data[[.var]])) {
+
+  if (is.numeric(data[[.var]])) {
     tipo <- "prmdt.regression"
   } else {
-    model$prmdt$levels <- levels(data[,.var])
+    model$prmdt$levels <- levels(data[, .var])
     tipo <- "prmdt.clasification"
   }
 
-  if(is.null(name)){
+  if (is.null(name)) {
     class(model) <- c("prmdt", class(model), tipo)
-  }else{
+  } else {
     class(model) <- c("prmdt", name, class(model), tipo)
   }
+
   return(model)
 }
+
+
+
+#' train.xgboost
+#'
+#' @importFrom xgboost xgb.DMatrix xgb.train
+#'
+#' @description
+#' This function wraps \code{\link[xgboost]{xgb.train}} to standardize model
+#' training within the traineR framework. It automatically handles preprocessing,
+#' parameter configuration, multiclass settings, and metadata generation for predictions.
+#'
+#' @param formula A model formula describing the response and predictors.
+#' @param data A data frame containing the training data. Internally, it is converted to
+#'   an \code{xgb.DMatrix}.
+#' @param nrounds Maximum number of boosting iterations.
+#' @param evals A named list of \code{xgb.DMatrix} objects for evaluation during training.
+#'   Defaults to training data if empty.
+#' @param custom_metric A custom evaluation function for xgboost.
+#' @param verbose Controls verbosity: \code{0} = silent, \code{1} = progress printed.
+#' @param print_every_n Print evaluation results every \code{print_every_n} iterations.
+#' @param early_stopping_rounds Number of rounds with no improvement before stopping.
+#' @param maximize Logical indicating if the evaluation metric should be maximized.
+#' @param save_period Save the model every \code{save_period} rounds. Defaults to saving at the end.
+#' @param save_name File name for saving the model.
+#' @param xgb_model A previously trained xgboost model for continuation.
+#' @param callbacks A list of callback functions for xgboost during training.
+#' @param eval_metric Evaluation metric for xgboost (e.g., \code{"mlogloss"}, \code{"rmse"}).
+#' @param extra_params Optional list of additional xgboost parameters.
+#' @param booster Booster type: \code{"gbtree"} or \code{"gblinear"}. Default is \code{"gbtree"}.
+#' @param objective Objective function for xgboost. If \code{NULL}, it's chosen automatically:
+#'   \itemize{
+#'     \item Regression → \code{"reg:squarederror"}
+#'     \item Binary classification → \code{"binary:logistic"}
+#'     \item Multiclass → \code{"multi:softprob"}
+#'   }
+#' @param eta Learning rate. Default is 0.3.
+#' @param gamma Minimum loss reduction for a split. Default is 0.
+#' @param max_depth Maximum depth of trees. Default is 6.
+#' @param min_child_weight Minimum sum of instance weight in a child.
+#' @param subsample Subsample ratio for training instances. Default is 1.
+#' @param colsample_bytree Subsample ratio of columns per tree. Default is 1.
+#' @param ... Additional arguments for \code{xgb.train}.
+#'
+#' @return
+#' An object of class \code{xgb.Booster.prmdt} containing:
+#' \itemize{
+#'   \item The trained xgboost model.
+#'   \item Metadata used by traineR for prediction output.
+#' }
+#'
+#' @seealso
+#' \code{\link[xgboost]{xgb.train}}, \code{\link[xgboost]{xgb.DMatrix}}
+#'
+#' @export
+train.xgboost <- function(
+    formula, data, nrounds,
+    evals = list(),
+    custom_metric = NULL,
+    verbose = 1,
+    print_every_n = 1L,
+    early_stopping_rounds = NULL,
+    maximize = NULL,
+    save_period = NULL,
+    save_name = "xgboost.model",
+    xgb_model = NULL,
+    callbacks = list(),
+    eval_metric = NULL,
+    extra_params = NULL,
+    booster = "gbtree",
+    objective = NULL,
+    eta = 0.3,
+    gamma = 0,
+    max_depth = 6,
+    min_child_weight = 1,
+    subsample = 1,
+    colsample_bytree = 1,
+    ...
+) {
+
+  ## ==============================
+  ## VARIABLES
+  ## ==============================
+  .colnames   <- all.vars(formula[-2])
+  var.predict <- as.character(formula[2])
+  selector    <- which(colnames(data) == var.predict)
+
+  if (length(.colnames) == 1 && .colnames == ".") {
+    .colnames <- colnames(data[, -selector, drop = FALSE])
+  }
+
+  ## ==============================
+  ## PREPROCESAMIENTO
+  ## ==============================
+  train_aux <- data |>
+    dplyr::select(dplyr::all_of(c(.colnames, var.predict))) |>
+    select_on_class(c("numeric", "integer", "factor"))
+
+  train_aux[] <- lapply(train_aux, as.numeric)
+
+  ## ==============================
+  ## CLASIFICACION / REGRESION
+  ## ==============================
+  is_classification <- is.factor(data[[var.predict]])
+
+  if (is_classification) {
+    train_aux[, var.predict] <- train_aux[, var.predict] - 1
+  }
+
+  selector <- which(colnames(train_aux) == var.predict)
+
+  dtrain <- xgboost::xgb.DMatrix(
+    data  = data.matrix(train_aux[, -selector]),
+    label = train_aux[, selector]
+  )
+
+  ## ==============================
+  ## EVALS POR DEFECTO
+  ## ==============================
+  if (length(evals) == 0) {
+    evals <- list(train = dtrain)
+  }
+
+  ## ==============================
+  ## PROTECCION: evals con 1 sola clase
+  ## ==============================
+  if (is_classification && length(evals) > 0) {
+    for (e in evals) {
+      lbl <- xgboost::getinfo(e, "label")
+      if (length(unique(lbl)) < 2) {
+        stop(
+          "XGBoost error: evaluation dataset contains only one class. ",
+          "This is invalid for classification."
+        )
+      }
+    }
+  }
+
+  ## ==============================
+  ## NUMERO DE CLASES
+  ## ==============================
+  num.class <- if (is_classification) {
+    length(levels(data[[var.predict]]))
+  } else {
+    0L
+  }
+
+  ## ==============================
+  ## OBJECTIVE AUTOMATICO
+  ## ==============================
+  if (is.null(objective)) {
+    objective <- if (num.class == 0) {
+      "reg:squarederror"
+    } else if (num.class == 2) {
+      "binary:logistic"
+    } else {
+      "multi:softprob"
+    }
+  }
+
+  ## ==============================
+  ## METRICA AUTOMÁTICA
+  ## ==============================
+  if (is.null(eval_metric)) {
+    eval_metric <- if (num.class == 0) {
+      "rmse"
+    } else if (num.class == 2) {
+      "logloss"
+    } else {
+      "mlogloss"
+    }
+  }
+
+  ## ==============================
+  ## PARAMETROS (LIMPIOS)
+  ## ==============================
+  if (is.null(extra_params)) {
+    params <- list(
+      booster = booster,
+      objective = objective,
+      eta = eta,
+      gamma = gamma,
+      max_depth = max_depth,
+      min_child_weight = min_child_weight,
+      subsample = subsample,
+      colsample_bytree = colsample_bytree,
+      eval_metric = eval_metric
+    )
+  } else {
+    params <- extra_params
+    params$eval_metric <- eval_metric
+  }
+
+  if (grepl("^multi", params$objective)) {
+    params$num_class <- num.class
+  }
+
+  ## ==============================
+  ## LLAMADA CORRECTA A xgb.train
+  ## ==============================
+  model_raw <- xgboost::xgb.train(
+    params = params,
+    data = dtrain,
+    nrounds = nrounds,
+    evals = if (length(evals) > 0) evals else NULL,
+    custom_metric = if (is.function(custom_metric)) custom_metric else NULL,
+    verbose = verbose,
+    print_every_n = print_every_n,
+    early_stopping_rounds = early_stopping_rounds,
+    maximize = maximize,
+    save_period = save_period,
+    save_name = save_name,
+    xgb_model = xgb_model,
+    callbacks = callbacks,
+    ...
+  )
+
+  ## ==============================
+  ## WRAPPER traineR
+  ## ==============================
+  create.model(model_raw, formula, data, "xgb.Booster.prmdt")
+}
+
+
+#-----------------------------------------------
 
 #' train.qda
 #'
@@ -266,10 +540,10 @@ train.adabag <- function(formula, data, boos = TRUE, mfinal = 100, coeflearn = '
 #' prediction
 #'
 train.gbm <- function(
-  formula, data, distribution = "bernoulli", weights, var.monotone = NULL,
-  n.trees = 100, interaction.depth = 1, n.minobsinnode = 10, shrinkage = 0.001,
-  bag.fraction = 0.5, train.fraction = 1.0, cv.folds = 0, keep.data = TRUE,
-  verbose = F, class.stratify.cv = NULL, n.cores = NULL) {
+    formula, data, distribution = "bernoulli", weights, var.monotone = NULL,
+    n.trees = 100, interaction.depth = 1, n.minobsinnode = 10, shrinkage = 0.001,
+    bag.fraction = 0.5, train.fraction = 1.0, cv.folds = 0, keep.data = TRUE,
+    verbose = F, class.stratify.cv = NULL, n.cores = NULL) {
 
   m <- match.call(expand.dots = FALSE)
   var.predict <- as.character(formula[2])
@@ -286,6 +560,15 @@ train.gbm <- function(
   }
   m$... <- NULL
   model <- eval.parent(m)
+
+  #----
+  #---Nuevo Esto no estaba
+  # Guardar metadata crítica
+  model$prmdt <- list(
+    n.trees = n.trees
+  )
+  #---
+  #----
   create.model(model, formula, data, "gbm.prmdt")
 }
 
@@ -788,166 +1071,6 @@ train.svm <- function(formula, data, ..., subset, na.action = na.omit, scale = T
   m$probability <- ifelse(is.null(m$probability), TRUE, m$probability)
   model <- eval(m, envir = parent.frame())
   create.model(model, formula, data, "svm.prmdt")
-}
-
-#' train.xgboost
-#'
-#' @description Provides a wrapping function for the \code{\link[xgboost]{xgb.train}}.
-#'
-#' @param formula a symbolic description of the model to be fit.
-#' @param data training dataset. xgb.train accepts only an xgb.DMatrix as the input. xgboost, in addition, also accepts matrix, dgCMatrix, or name of a local data file.
-#' @param nrounds max number of boosting iterations.
-#' @param watchlist named list of xgb.DMatrix datasets to use for evaluating model performance.
-#'                  Metrics specified in either eval_metric or feval will be computed for each of these
-#'                  datasets during each boosting iteration, and stored in the end as a field named evaluation_log in the resulting object.
-#'                   When either verbose>=1 or cb.print.evaluation callback is engaged, the performance results are continuously printed out
-#'                   during the training. E.g., specifying watchlist=list(validation1=mat1, validation2=mat2) allows to track the performance
-#'                   of each round's model on mat1 and mat2.
-#' @param obj customized objective function. Returns gradient and second order gradient with given prediction and dtrain.
-#' @param feval custimized evaluation function. Returns list(metric='metric-name', value='metric-value') with given prediction and dtrain.
-#' @param verbose If 0, xgboost will stay silent. If 1, it will print information about performance. If 2, some additional information will be printed out.
-#'                Note that setting verbose > 0 automatically engages the cb.print.evaluation(period=1) callback function.
-#' @param print_every_n Print each n-th iteration evaluation messages when verbose>0. Default is 1 which means all messages are printed.
-#'                      This parameter is passed to the cb.print.evaluation callback.
-#' @param early_stopping_rounds If NULL, the early stopping function is not triggered. If set to an integer k,
-#'                              training with a validation set will stop if the performance doesn't improve for k rounds.
-#'                              Setting this parameter engages the cb.early.stop callback.
-#' @param maximize 	If feval and early_stopping_rounds are set, then this parameter must be set as well. When it is TRUE, it means the larger
-#'                  the evaluation score the better. This parameter is passed to the cb.early.stop callback.
-#' @param save_period when it is non-NULL, model is saved to disk after every save_period rounds, 0 means save at the end. The saving is handled by the cb.save.model callback.
-#' @param save_name the name or path for periodically saved model file.
-#' @param xgb_model a previously built model to continue the training from. Could be either an object of class xgb.Booster, or its raw data, or the name
-#'                  of a file with a previously saved model.
-#' @param callbacks a list of callback functions to perform various task during boosting. See callbacks. Some of the callbacks are automatically created
-#'                  depending on the parameters' values. User can provide either existing or their own callback methods in order to customize the training process.
-#' @param eval_metric eval_metric evaluation metrics for validation data. Users can pass a self-defined function to it. Default: metric will be assigned
-#'                    according to objective(rmse for regression, and error for classification, mean average precision for ranking). List is
-#'                    provided in detail section.
-#' @param extra_params the list of parameters. The complete list of parameters is available at http://xgboost.readthedocs.io/en/latest/parameter.html.
-#' @param booster booster which booster to use, can be gbtree or gblinear. Default: gbtree.
-#' @param objective objective specify the learning task and the corresponding learning objective, users can pass a self-defined function to it. The default objective options are below:
-#' + reg:linear linear regression (Default).
-#' + reg:logistic logistic regression.
-#' + binary:logistic logistic regression for binary classification. Output probability.
-#' + binary:logitraw logistic regression for binary classification, output score before logistic transformation.
-#' + num_class set the number of classes. To use only with multiclass objectives.
-#' + multi:softmax set xgboost to do multiclass classification using the softmax objective. Class is represented by a number and should be from 0 to num_class - 1.
-#' + multi:softprob same as softmax, but prediction outputs a vector of ndata * nclass elements, which can be further reshaped to ndata, nclass matrix. The result contains predicted probabilities of each data point belonging to each class.
-#' + rank:pairwise set xgboost to do ranking task by minimizing the pairwise loss.
-#' @param eta eta control the learning rate: scale the contribution of each tree by a factor of 0 < eta < 1 when it is added to the current approximation.
-#'            Used to prevent overfitting by making the boosting process more conservative. Lower value for eta implies larger value for nrounds: low eta
-#'            value means model more robust to overfitting but slower to compute. Default: 0.3
-#' @param gamma gamma minimum loss reduction required to make a further partition on a leaf node of the tree. the larger, the more conservative
-#'              the algorithm will be.gamma minimum loss reduction required to make a further partition on a leaf node of the tree. the larger, the more
-#'              conservative the algorithm will be.
-#' @param max_depth max_depth maximum depth of a tree. Default: 6
-#' @param min_child_weight min_child_weight minimum sum of instance weight (hessian) needed in a child. If the tree partition step results in a leaf node
-#'                         with the sum of instance weight less than min_child_weight, then the building process will give up further partitioning. In linear
-#'                         regression mode, this simply corresponds to minimum number of instances needed to be in each node. The larger, the more conservative
-#'                         the algorithm will be. Default: 1
-#' @param subsample subsample subsample ratio of the training instance. Setting it to 0.5 means that xgboost randomly collected half of the data instances to
-#'                  grow trees and this will prevent overfitting. It makes computation shorter (because less data to analyse). It is advised to use this parameter
-#'                  with eta and increase nrounds. Default: 1
-#' @param colsample_bytree colsample_bytree subsample ratio of columns when constructing each tree. Default: 1
-#' @param ... other parameters to pass to params.
-#'
-#' @importFrom stats model.frame
-#' @importFrom xgboost xgboost xgb.DMatrix xgb.train
-#' @import dplyr
-#'
-#' @seealso The internal function is from package \code{\link[xgboost]{xgb.train}}.
-#'
-#' @return A object xgb.Booster.prmdt with additional information to the model that allows to homogenize the results.
-#'
-#' @note the parameter information was taken from the original function \code{\link[xgboost]{xgb.train}}.
-#'
-#' @export
-#'
-#' @examples
-#'
-#' \donttest{
-#' # Classification
-#' data("iris")
-#'
-#' n <- seq_len(nrow(iris))
-#' .sample <- sample(n, length(n) * 0.75)
-#' data.train <- iris[.sample,]
-#' data.test <- iris[-.sample,]
-#'
-#' modelo.xg <- train.xgboost(Species~., data.train, nrounds = 10, maximize = FALSE)
-#' modelo.xg
-#' prob <- predict(modelo.xg, data.test, type = "prob")
-#' prob
-#' prediccion <- predict(modelo.xg, data.test, type = "class")
-#' prediccion
-#'
-#' # Regression
-#' len <- nrow(swiss)
-#' sampl <- sample(x = 1:len,size = len*0.20,replace = FALSE)
-#' ttesting <- swiss[sampl,]
-#' ttraining <- swiss[-sampl,]
-#' model.xgb <- train.xgboost(Infant.Mortality~.,ttraining, nrounds = 10, maximize = FALSE)
-#' prediction <- predict(model.xgb, ttesting)
-#' prediction
-#' }
-#'
-train.xgboost <- function(formula, data, nrounds, watchlist = list(), obj = NULL, feval = NULL,
-                          verbose = 1, print_every_n = 1L, early_stopping_rounds = NULL, maximize = NULL,
-                          save_period = NULL, save_name = "xgboost.model", xgb_model = NULL, callbacks = list(),
-                          eval_metric = "mlogloss",extra_params = NULL, booster = "gbtree",
-                          objective = NULL, eta = 0.3, gamma=0, max_depth = 6, min_child_weight = 1, subsample = 1,
-                          colsample_bytree = 1, ...){
-
-  .colnames <- all.vars(formula[-2])
-  var.predict <- as.character(formula[2])
-
-  selector <- which(colnames(data) == var.predict)
-
-  if(length(.colnames) == 1 && .colnames == "."){
-    .colnames <- colnames(data[,-selector, drop = FALSE])
-  }
-
-  train_aux <- data |> select(c(.colnames,var.predict)) |> select_on_class(c("numeric","integer", "factor"))
-
-  train_aux[] <- lapply(train_aux, as.numeric)
-
-  if(min(train_aux[,var.predict]) != 0){
-    train_aux[,var.predict] <- train_aux[,var.predict] - 1
-  }
-
-  selector <- which(colnames(train_aux) == var.predict)
-
-  train_aux <- xgb.DMatrix(data = data.matrix(train_aux[,-selector]), label = data.matrix(train_aux[,selector]))
-
-  if(length(watchlist) == 0){
-    watchlist <- list(train = train_aux)
-  }
-
-  num.class <- length(levels(data[,var.predict]))
-
-  if(is.null(extra_params)){
-    if(is.null(objective)){
-      objective <- ifelse(num.class == 0, "reg:squarederror",
-                          ifelse(num.class == 2, "binary:logistic", "multi:softprob"))
-    }
-    params <- list(booster = booster, objective = objective, eta = eta, gamma = gamma, max_depth = max_depth,
-                   min_child_weight = min_child_weight, subsample = subsample, colsample_bytree = colsample_bytree)
-  }else{
-    params <- extra_params
-  }
-
-  if(num.class > 2){
-    params$num_class <- num.class
-    model <- xgb.train(params = params, data = train_aux, eval_metric = "mlogloss", nrounds = nrounds, watchlist = watchlist,
-                       obj = obj, feval = feval, verbose = verbose, print_every_n = print_every_n, early_stopping_rounds = early_stopping_rounds,
-                       maximize = maximize, save_period = save_period, save_name = save_name, xgb_model = xgb_model, callbacks = callbacks, ... = ...)
-  }else{
-    model <- xgb.train(params = params, data = train_aux, nrounds = nrounds, watchlist = watchlist, obj = obj, feval = feval, verbose = verbose,
-                       print_every_n = print_every_n, early_stopping_rounds = early_stopping_rounds, maximize = maximize, save_period = save_period,
-                       save_name = save_name, xgb_model = xgb_model, callbacks = callbacks, ... = ...)
-  }
-
-  create.model(model, formula, data, "xgb.Booster.prmdt")
 }
 
 #' train.glm
