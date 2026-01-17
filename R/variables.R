@@ -219,30 +219,53 @@ categorical.predictive.power <- function(data, predict.variable, variable.to.com
 #'  maxdepth = 30, mfinal = 10)
 #'importance.plot(model)
 #'
+
 importance.plot <- function(model, col = "steelblue") {
-  if("adabag.prmdt" %in% class(model)) {
+
+  # 1) Si viene envuelto en prmdt (como tu 'modelo'), extrae el booster real
+  if (is.list(model) && "model" %in% names(model) && inherits(model$model, "xgb.Booster")) {
+    model <- model$model
+  }
+
+  # 2) Manejo por tipo/clase
+  if ("adabag.prmdt" %in% class(model)) {
+
     df <- data.frame(x = names(model$importance), y = model$importance)
-  } else if("randomForest.prmdt" %in% class(model)) {
+
+  } else if ("randomForest.prmdt" %in% class(model)) {
+
     aux <- data.frame(model$importance)
     df <- data.frame(x = row.names(aux), y = aux$MeanDecreaseGini)
-  } else if("xgb.Booster.prmdt" %in% class(model)) {
-    aux <- data.frame(xgb.importance(model = model))
+
+  } else if (inherits(model, "xgb.Booster") || ("xgb.Booster.prmdt" %in% class(model))) {
+
+    # 3) Asegura que el dispatch no se rompa por clases raras
+    class(model) <- "xgb.Booster"
+
+    # 4) Llama explícitamente al namespace correcto
+    aux <- data.frame(xgboost::xgb.importance(model = model))
     df <- data.frame(x = aux$Feature, y = aux$Frequency)
-  } else if("gbm.prmdt" %in% class(model)) {
-    aux <- summary.gbm(model, plotit = F)
+
+  } else if ("gbm.prmdt" %in% class(model)) {
+
+    aux <- summary.gbm(model, plotit = FALSE)
     df <- data.frame(x = aux$var, y = aux$rel.inf)
+
   } else {
     stop("The model does not have this functionality.")
   }
 
   df$y <- round(df$y, digits = 2)
-  ggplot(data = df, aes(x = reorder(x, .data$y), y = y)) +
-    geom_bar(stat = "identity", fill = col, width = 0.6) +
-    theme_minimal() +
-    labs(title = "Variable Importance",
-         y = "Percentage of Importance", x = "Variable Names") +
-    scale_y_continuous(breaks = seq(0, 100, 10)) +
-    coord_flip()
+
+  ggplot2::ggplot(data = df, ggplot2::aes(x = reorder(x, .data$y), y = y)) +
+    ggplot2::geom_bar(stat = "identity", fill = col, width = 0.6) +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(
+      title = "Variable Importance",
+      y = "Percentage of Importance",
+      x = "Variable Names"
+    ) +
+    ggplot2::coord_flip()
 }
 
 

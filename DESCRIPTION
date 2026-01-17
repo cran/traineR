@@ -1,7 +1,7 @@
 Package: traineR
 Type: Package
 Title: Predictive (Classification and Regression) Models Homologator
-Version: 2.2.9
+Version: 2.2.10
 Authors@R: c(
     person("Oldemar", "Rodriguez R.", email = "oldemar.rodriguez@ucr.ac.cr", role = c("aut","cre")),
     person("Andres", "Navarro D.", role = c("aut")),
@@ -22,7 +22,7 @@ URL: https://promidat.website/
 BugReports: https://github.com/PROMiDAT/traineR/issues
 RoxygenNote: 7.3.3
 NeedsCompilation: no
-Packaged: 2025-12-17 22:00:47 UTC; r3291508
+Packaged: 2026-01-16 17:58:32 UTC; r3291508
 Author: Oldemar Rodriguez R. [aut, cre],
   Andres Navarro D. [aut],
   Ariel Arroyo S. [aut],
@@ -30,4 +30,4 @@ Author: Oldemar Rodriguez R. [aut, cre],
   Jennifer Lobo V. [aut]
 Maintainer: Oldemar Rodriguez R. <oldemar.rodriguez@ucr.ac.cr>
 Repository: CRAN
-Date/Publication: 2025-12-18 06:20:02 UTC
+Date/Publication: 2026-01-17 06:10:02 UTC
