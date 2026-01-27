@@ -378,58 +378,6 @@ train.lda <- function(formula, data, ..., subset, na.action){
   create.model(model, formula, data, "lda.prmdt")
 }
 
-#' train.ada
-#'
-#' @description Provides a wrapping function for the \code{\link[ada]{ada}}.
-#'
-#' @param formula  a symbolic description of the model to be fit.
-#' @param data an optional data frame containing the variables in the model.
-#' @param ... arguments passed to rpart.control. For stumps, use rpart.control(maxdepth=1,cp=-1,minsplit=0,xval=0). maxdepth controls the depth of
-#'            trees, and cp controls the complexity of trees. The priors should also be fixed through the parms argument as discussed in the second reference.
-#' @param subset an optional vector specifying a subset of observations to be used in the fitting process.
-#' @param na.action a function that indicates how to process ‘NA’ values. Default=na.rpart.
-#'
-#' @importFrom ada ada
-#'
-#' @seealso The internal function is from package \code{\link[ada]{ada}}.
-#'
-#' @return A object ada.prmdt with additional information to the model that allows to homogenize the results.
-#'
-#' @note the parameter information was taken from the original function \code{\link[ada]{ada}}.
-#'
-#' @export
-#'
-#' @examples
-#'
-#' data("Puromycin")
-#'
-#' n <- seq_len(nrow(Puromycin))
-#' .sample <- sample(n, length(n) * 0.75)
-#' data.train <- Puromycin[.sample,]
-#' data.test <- Puromycin[-.sample,]
-#'
-#' modelo.ada <- train.ada(state~., data.train)
-#' modelo.ada
-#' prob <- predict(modelo.ada, data.test , type = "prob")
-#' prob
-#' prediccion <- predict(modelo.ada, data.test , type = "class")
-#' prediccion
-#'
-train.ada <- function(formula, data, ..., subset, na.action = na.rpart){
-  m <- match.call(expand.dots = FALSE)
-  if (is.matrix(eval.parent(m$data))){
-    m$data <- as.data.frame(data)
-  }
-  m[[1L]] <- quote(ada::ada)
-  my.list <- as.list(m$...)
-  for(.name in names(my.list)) {
-    m[[.name]] <- my.list[[.name]]
-  }
-  m$... <- NULL
-  model <- eval.parent(m)
-  create.model(model, formula, data, "ada.prmdt")
-}
-
 #' train.adabag
 #'
 #' @description Provides a wrapping function for the \code{\link[adabag]{boosting}}.

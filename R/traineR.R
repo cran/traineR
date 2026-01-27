@@ -22,8 +22,8 @@
 #' \tabular{ll}{
 #' Package: \tab traineR\cr
 #' Type: \tab Package\cr
-#' Version: \tab 2.2.9\cr
-#' Date: \tab 2026-01-16\cr
+#' Version: \tab 2.2.11\cr
+#' Date: \tab 2026-01-30\cr
 #' License: \tab GPL (>=2)\cr
 #' }
 #' @keywords package

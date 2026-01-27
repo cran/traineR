@@ -71,35 +71,6 @@ predict.lda.prmdt <- function(object, newdata, type = "class", ...){
   return(create.prediction(object, ans))
 }
 
-#' predict.ada.prmdt
-#'
-#' @description Return prediction for a \code{\link[ada]{ada}} model.
-#'
-#' @param object a \code{\link[ada]{ada}} model object for which prediction is desired.
-#' @param newdata an optional data frame in which to look for variables with which to predict.
-#' @param type type of prediction 'prob' or 'class' (default).
-#' @param n.iter number of iterations to consider for the prediction. By default this is iter from the ada call (n.iter< iter).
-#' @param ... additional arguments affecting the predictions produced.
-#'
-#' @importFrom stats na.pass predict
-#' @importFrom stringr str_detect
-#'
-#' @return a vector or matrix of predictions for ada model.
-#'
-#' @export predict.ada.prmdt
-#' @export
-#'
-predict.ada.prmdt <- function(object, newdata, type = "class", n.iter = NULL, ...){
-  type <- ifelse(type == "class", "vector", type)
-  ans <- predict(original_model(object), get_test_less_predict(newdata, object$prmdt$var.pred), type, n.iter, ...)
-  if(type == "prob"){
-    colnames(ans) <- object$prmdt$levels
-  }else{
-    ans <- type_correction(object, ans, type == "vector")
-  }
-  return(create.prediction(object, ans))
-}
-
 #' predict.adabag.prmdt
 #'
 #' @description Return prediction for a \code{\link[adabag]{boosting}} model.
@@ -374,6 +345,7 @@ predict.randomForest.prmdt <- function(object, newdata, type = "class", norm.vot
 #' predict.rpart.prmdt
 #'
 #' @importFrom stats na.pass predict
+#' @importFrom stringr str_detect
 #'
 #' @description Return prediction for a \code{\link[rpart]{rpart}} model.
 #'

@@ -18,8 +18,8 @@ Logistic Regression Dobson, A. J., & Barnett, A. G. (2018) <doi:10.1201/97813151
 \tabular{ll}{
 Package: \tab traineR\cr
 Type: \tab Package\cr
-Version: \tab 2.2.9\cr
-Date: \tab 2026-01-16\cr
+Version: \tab 2.2.11\cr
+Date: \tab 2026-01-30\cr
 License: \tab GPL (>=2)\cr
 }
 }

@@ -247,20 +247,6 @@ plot.prmdt <- function(x, ...){
   plot(x, ...)
 }
 
-#' Plotting prmdt ada models
-#'
-#' @param x A ada prmdt model
-#' @param ... optional arguments to print o format method
-#'
-#' @return a plot of the importance of variables.
-#'
-#' @export
-#'
-varplot <- function(x, ...){
-  x <- original_model(x)
-  ada::varplot(x, ...)
-}
-
 #' dummy.data.frame
 #'
 #' @keywords internal
